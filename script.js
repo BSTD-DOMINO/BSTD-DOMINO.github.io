@@ -11,12 +11,13 @@ window.onload = function() {
     }
 };
 
+
 function toggleMenu() {
     document.getElementById("dropdownMenu").classList.toggle("show");
 }
 
 window.onclick = function(event) {
-    if (!event.target.matches('.profile-corner') && !event.target.matches('.profile-corner *')) {
+    if (!event.target.matches('.profile-header') && !event.target.matches('.profile-header *')) {
         var dropdowns = document.getElementsByClassName("dropdown-content");
         for (var i = 0; i < dropdowns.length; i++) {
             var openDropdown = dropdowns[i];
@@ -26,6 +27,7 @@ window.onclick = function(event) {
         }
     }
 }
+
 
 function performRegister() {
     const user = document.getElementById('regUser').value;
@@ -65,6 +67,7 @@ function performRegister() {
         console.error(err);
     });
 }
+
 
 function performLogin() {
     const user = document.getElementById('loginUser').value;
@@ -110,10 +113,16 @@ function performLogin() {
     });
 }
 
+
 function loginSuccess(userObj) {
+
     document.getElementById('cornerUsername').innerText = userObj.username;
     document.getElementById('profileName').innerText = userObj.username;
     
+    const firstLetter = userObj.username.charAt(0);
+    const avatarEl = document.getElementById('avatarCircle');
+    if(avatarEl) avatarEl.innerText = firstLetter;
+
     const scoreEl = document.getElementById('profileScore');
     if(scoreEl) scoreEl.innerText = userObj.score;
 
@@ -123,7 +132,7 @@ function loginSuccess(userObj) {
     const teamStatusText = document.getElementById('teamStatusText');
     if(teamStatusText) teamStatusText.innerText = userObj.team;
     
-    document.getElementById('profileCorner').style.display = 'block';
+    document.getElementById('profileCorner').style.display = 'flex';
 
     document.getElementById('loginUser').value = '';
     document.getElementById('loginPass').value = '';
@@ -140,19 +149,15 @@ function handleLogout() {
 }
 
 function showSection(sectionName) {
-
     const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support'];
     
-
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
         if(el) el.classList.add('hidden');
     });
     
-
     const target = document.getElementById(sectionName + 'Section');
     if (target) target.classList.remove('hidden');
-
 
     const dropdown = document.getElementById("dropdownMenu");
     if (dropdown) dropdown.classList.remove('show');
