@@ -8,10 +8,12 @@
 </head>
 <body>
 
-   <div id="profileCorner" class="profile-header" onclick="toggleMenu()">
-    <span id="cornerUsername" class="profile-name">Гість</span>
-    <div id="avatarCircle" class="avatar-circle">Г</div>
-  </div>
+    <div class="profile-container">
+        
+        <div id="profileCorner" class="profile-header" onclick="toggleMenu()">
+            <span id="cornerUsername" class="profile-name">Гість</span>
+            <div id="avatarCircle" class="avatar-circle">Г</div>
+        </div>
         
         <div id="dropdownMenu" class="dropdown-content">
             <a onclick="showSection('main')">Головна</a>
@@ -23,8 +25,8 @@
             <div class="divider"></div>
             <a onclick="handleLogout()" class="logout-btn">Вихід</a>
         </div>
-    </div>
 
+    </div>
     <div id="loginSection" class="container">
         <h1>Вхід BSTD</h1>
         <input type="text" id="loginUser" placeholder="Логін">
@@ -72,8 +74,8 @@
     </div>
 
     <div id="teamSection" class="container hidden">
-        <h2>🛡️ Партія</h2>
-        <p>Ваш статус у партії: <strong id="teamStatusText">Но</strong></p>
+        <h2>Партія</h2>
+        <p>Ваш статус у партії: <strong id="teamStatusText">Новачок</strong></p>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
