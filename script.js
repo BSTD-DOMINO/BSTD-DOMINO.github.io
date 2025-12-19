@@ -11,6 +11,22 @@ window.onload = function() {
     }
 };
 
+function toggleMenu() {
+    document.getElementById("dropdownMenu").classList.toggle("show");
+}
+
+window.onclick = function(event) {
+    if (!event.target.matches('.profile-corner') && !event.target.matches('.profile-corner *')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
 function performRegister() {
     const user = document.getElementById('regUser').value;
     const pass = document.getElementById('regPass').value;
@@ -24,7 +40,7 @@ function performRegister() {
     }
 
     btn.disabled = true;
-    statusDiv.innerText = "Реєструємо та шифруємо...";
+    statusDiv.innerText = "Реєструємо...";
     statusDiv.style.color = "blue";
 
     fetch(GOOGLE_SCRIPT_URL, {
@@ -35,7 +51,7 @@ function performRegister() {
     .then(data => {
         btn.disabled = false;
         if(data.status === "success") {
-            statusDiv.innerText = "Успішно! Тепер увійдіть.";
+            statusDiv.innerText = "Успішно! Увійдіть.";
             statusDiv.style.color = "green";
             setTimeout(() => showSection('login'), 1500);
         } else {
@@ -62,7 +78,7 @@ function performLogin() {
     }
 
     btn.disabled = true;
-    statusDiv.innerText = "Перевірка,,,";
+    statusDiv.innerText = "Перевірка...";
     statusDiv.style.color = "blue";
 
     fetch(GOOGLE_SCRIPT_URL, {
@@ -73,18 +89,14 @@ function performLogin() {
     .then(data => {
         btn.disabled = false;
         if(data.status === "success") {
-
             const userData = {
                 username: user,
                 score: data.data.score,
                 team: data.data.team,
                 test_passed: data.data.test_passed
             };
-            
-
             currentUser = userData;
             localStorage.setItem('userData', JSON.stringify(userData));
-            
             loginSuccess(userData);
         } else {
             statusDiv.innerText = data.message;
@@ -101,18 +113,17 @@ function performLogin() {
 function loginSuccess(userObj) {
     document.getElementById('cornerUsername').innerText = userObj.username;
     document.getElementById('profileName').innerText = userObj.username;
-    document.getElementById('welcomeText').innerText = "Вітаємо, " + userObj.username + "!";
     
-
     const scoreEl = document.getElementById('profileScore');
     if(scoreEl) scoreEl.innerText = userObj.score;
 
-
     const teamEl = document.getElementById('profileTeam');
     if(teamEl) teamEl.innerText = userObj.team;
+
+    const teamStatusText = document.getElementById('teamStatusText');
+    if(teamStatusText) teamStatusText.innerText = userObj.team;
     
     document.getElementById('profileCorner').style.display = 'block';
-
 
     document.getElementById('loginUser').value = '';
     document.getElementById('loginPass').value = '';
@@ -129,11 +140,20 @@ function handleLogout() {
 }
 
 function showSection(sectionName) {
-    const sections = ['login', 'register', 'main', 'profile', 'team', 'tests'];
+
+    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support'];
+    
+
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
         if(el) el.classList.add('hidden');
     });
+    
+
     const target = document.getElementById(sectionName + 'Section');
     if (target) target.classList.remove('hidden');
+
+
+    const dropdown = document.getElementById("dropdownMenu");
+    if (dropdown) dropdown.classList.remove('show');
 }
