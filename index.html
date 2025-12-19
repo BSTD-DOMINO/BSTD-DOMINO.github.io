@@ -4,100 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BSTD-DOMINO System</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: #1f2937;
-            text-align: center;
-            background-color: #f3f4f6;
-            background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-
-        .container {
-            padding: 2rem;
-            border-radius: 1rem;
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            transition: all 0.3s ease;
-        }
-
-        h1 { color: #111827; margin-bottom: 1.5rem; }
-        h2 { color: #374151; margin-top: 2rem; }
-        
-        input, textarea, select {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        button, .btn {
-            background-color: #4f46e5;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
-        button:hover, .btn:hover { background-color: #4338ca; }
-        
-        .hidden { display: none; }
-        
-        .profile-corner {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-            z-index: 1000;
-            font-weight: bold;
-            display: none;
-        }
-
-        .news-item {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: left;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .news-item img { max-width: 100%; border-radius: 5px; }
-        .news-date { font-size: 0.8em; color: gray; }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -106,22 +13,32 @@
     </div>
 
     <div id="loginSection" class="container">
-        <h1>Вхід у систему BSTD</h1>
-        <input type="text" id="loginUser" placeholder="Ім'я користувача">
+        <h1>Вхід BSTD</h1>
+        <input type="text" id="loginUser" placeholder="Логін">
         <input type="password" id="loginPass" placeholder="Пароль">
-        <button onclick="handleLogin()">Увійти</button>
-        <p style="margin-top:10px; font-size: 0.9em;">Немає акаунту? <a href="#" onclick="alert('Реєстрація тимчасово через адміна')">Зареєструватися</a></p>
+        <button id="btnLogin" onclick="performLogin()">Увійти</button>
+        <div id="loginStatus" class="status-msg"></div>
+        <p style="font-size: 0.9em;">Немає акаунту? <span class="text-link" onclick="showSection('register')">Зареєструватися</span></p>
+    </div>
+
+    <div id="registerSection" class="container hidden">
+        <h1>Реєстрація</h1>
+        <input type="text" id="regUser" placeholder="Придумайте логін">
+        <input type="password" id="regPass" placeholder="Придумайте пароль">
+        <button id="btnReg" onclick="performRegister()">Створити акаунт</button>
+        <div id="regStatus" class="status-msg"></div>
+        <p style="font-size: 0.9em;">Вже є акаунт? <span class="text-link" onclick="showSection('login')">Увійти</span></p>
     </div>
 
     <div id="mainSection" class="container hidden">
         <h1 id="welcomeText">Вітаємо!</h1>
-        <p>Система доступу до ресурсів DOMINO.</p>
+        <p>Доступ DOMINO.</p>
         
         <div class="menu-grid">
-            <button class="btn" onclick="showSection('news')">📰 Новини</button>
-            <button class="btn" onclick="showSection('profile')">👤 Мій профіль</button>
-            <button class="btn" onclick="showSection('team')">🛡️ Команда</button>
-            <button class="btn" onclick="showSection('tests')">📝 Тести</button>
+            <button class="btn" onclick="alert('Новини скоро будуть!')"> Новини</button>
+            <button class="btn" onclick="showSection('profile')"> Профіль</button>
+            <button class="btn" onclick="showSection('team')"> Команда</button>
+            <button class="btn" onclick="window.open('https://docs.google.com/forms/')"> Тести</button>
         </div>
         
         <br>
@@ -129,102 +46,19 @@
     </div>
 
     <div id="profileSection" class="container hidden">
-        <h2>Особиста справа</h2>
-        <img src="https://via.placeholder.com/150" style="border-radius: 50%;" alt="Аватар">
+        <h2>Мій профіль</h2>
+        <img src="https://via.placeholder.com/100" style="border-radius: 50%;" alt="Аватар">
         <h3 id="profileName">User</h3>
-        <p><strong>Ранг:</strong> Новачок</p>
-        <p><strong>Бали:</strong> <span id="profileScore">0</span></p>
-        <p><strong>Статус:</strong> <span style="color:green">Активний</span></p>
-        <button onclick="showSection('main')">⬅️ Назад</button>
-    </div>
-
-    <div id="newsSection" class="container hidden">
-        <h2>Останні новини</h2>
-        <div id="newsFeed">
-            </div>
-        <button onclick="showSection('main')">⬅️ Назад</button>
+        <p>Статус: <span style="color:green; font-weight:bold;">У системі</span></p>
+        <button onclick="showSection('main')"> Назад</button>
     </div>
 
     <div id="teamSection" class="container hidden">
-        <h2>Ваша команда</h2>
-        <p>Ви поки що не розподілені у підрозділ.</p>
-        <button onclick="showSection('main')">⬅️ Назад</button>
-    </div>
-    
-    <div id="testsSection" class="container hidden">
-        <h2>Кваліфікаційний тест</h2>
-        <p>Пройдіть тест, щоб отримати доступ до заводу.</p>
-        <button class="btn" onclick="window.location.href='https://docs.google.com/forms/'">Відкрити</button>
-        <br><br>
-        <button onclick="showSection('main')">⬅️ Назад</button>
+        <h2>Команда</h2>
+        <p>Ви в команді "Н".</p>
+        <button onclick="showSection('main')">Назад</button>
     </div>
 
-    <script>
-
-        const mockNews = [
-            { title: "Запуск системи", text: "Ми успішно переїхали на GitHub!", date: "2023-10-25" },
-            { title: "Оновлення безпеки", text: "Всім пройти перевірку у розділі Тести.", date: "2023-10-26" }
-        ];
-
-        let currentUser = localStorage.getItem('user') || null;
-
-        window.onload = function() {
-            if (currentUser) {
-                loginSuccess(currentUser);
-            } else {
-                showSection('login');
-            }
-            renderNews();
-        };
-
-        function handleLogin() {
-            const user = document.getElementById('loginUser').value;
-            if (user) {
-                currentUser = user;
-                localStorage.setItem('user', user);
-                loginSuccess(user);
-            } else {
-                alert("Введіть ім'я!");
-            }
-        }
-
-        function loginSuccess(user) {
-            document.getElementById('cornerUsername').innerText = user;
-            document.getElementById('profileName').innerText = user;
-            document.getElementById('welcomeText').innerText = "Вітаємо, " + user + "!";
-            document.getElementById('profileCorner').style.display = 'block';
-            showSection('main');
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('user');
-            currentUser = null;
-            document.getElementById('profileCorner').style.display = 'none';
-            document.getElementById('loginUser').value = '';
-            document.getElementById('loginPass').value = '';
-            showSection('login');
-        }
-
-        function showSection(sectionName) {
-            const sections = ['login', 'main', 'profile', 'news', 'team', 'tests'];
-            sections.forEach(s => document.getElementById(s + 'Section').classList.add('hidden'));
-
-            document.getElementById(sectionName + 'Section').classList.remove('hidden');
-        }
-
-        function renderNews() {
-            const feed = document.getElementById('newsFeed');
-            feed.innerHTML = '';
-            mockNews.forEach(news => {
-                feed.innerHTML += `
-                    <div class="news-item">
-                        <h3>${news.title}</h3>
-                        <p class="news-date">${news.date}</p>
-                        <p>${news.text}</p>
-                    </div>
-                `;
-            });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
