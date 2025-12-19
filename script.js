@@ -1,7 +1,7 @@
 
-const GOOGLE_SCRIPT_URL = "С"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxD9J2olFdDqcAkt2e6BMYKshz5oWIS0kVQnG7yktbe32adgLm7qH_qANJtR7q7GQB6/exec"; 
 
-let currentUser = localStorage.getItem('user') || null;
+let currentUser = JSON.parse(localStorage.getItem('userData')) || null;
 
 window.onload = function() {
     if (currentUser) {
@@ -10,7 +10,6 @@ window.onload = function() {
         showSection('login');
     }
 };
-
 
 function performRegister() {
     const user = document.getElementById('regUser').value;
@@ -25,7 +24,7 @@ function performRegister() {
     }
 
     btn.disabled = true;
-    statusDiv.innerText = "Реєструємо...";
+    statusDiv.innerText = "Реєструємо та шифруємо...";
     statusDiv.style.color = "blue";
 
     fetch(GOOGLE_SCRIPT_URL, {
@@ -58,13 +57,12 @@ function performLogin() {
     const btn = document.getElementById('btnLogin');
 
     if(!user || !pass) {
-        statusDiv.innerText = "Введіть логін і пароль!";
-        statusDiv.style.color = "red";
+        statusDiv.innerText = "Введіть дані!";
         return;
     }
 
     btn.disabled = true;
-    statusDiv.innerText = "Перевіряємо...";
+    statusDiv.innerText = "Перевірка,,,";
     statusDiv.style.color = "blue";
 
     fetch(GOOGLE_SCRIPT_URL, {
@@ -75,9 +73,19 @@ function performLogin() {
     .then(data => {
         btn.disabled = false;
         if(data.status === "success") {
-            currentUser = user;
-            localStorage.setItem('user', user);
-            loginSuccess(user);
+
+            const userData = {
+                username: user,
+                score: data.data.score,
+                team: data.data.team,
+                test_passed: data.data.test_passed
+            };
+            
+
+            currentUser = userData;
+            localStorage.setItem('userData', JSON.stringify(userData));
+            
+            loginSuccess(userData);
         } else {
             statusDiv.innerText = data.message;
             statusDiv.style.color = "red";
@@ -85,17 +93,27 @@ function performLogin() {
     })
     .catch(err => {
         btn.disabled = false;
-        statusDiv.innerText = "Помилка з'єднання.";
+        statusDiv.innerText = "Помилка.";
         console.error(err);
     });
 }
 
-function loginSuccess(user) {
-    document.getElementById('cornerUsername').innerText = user;
-    document.getElementById('profileName').innerText = user;
-    document.getElementById('welcomeText').innerText = "Вітаємо, " + user + "!";
-    document.getElementById('profileCorner').style.display = 'block';
+function loginSuccess(userObj) {
+    document.getElementById('cornerUsername').innerText = userObj.username;
+    document.getElementById('profileName').innerText = userObj.username;
+    document.getElementById('welcomeText').innerText = "Вітаємо, " + userObj.username + "!";
     
+
+    const scoreEl = document.getElementById('profileScore');
+    if(scoreEl) scoreEl.innerText = userObj.score;
+
+
+    const teamEl = document.getElementById('profileTeam');
+    if(teamEl) teamEl.innerText = userObj.team;
+    
+    document.getElementById('profileCorner').style.display = 'block';
+
+
     document.getElementById('loginUser').value = '';
     document.getElementById('loginPass').value = '';
     document.getElementById('loginStatus').innerText = '';
@@ -104,17 +122,18 @@ function loginSuccess(user) {
 }
 
 function handleLogout() {
-    localStorage.removeItem('user');
+    localStorage.removeItem('userData');
     currentUser = null;
     document.getElementById('profileCorner').style.display = 'none';
     showSection('login');
 }
 
 function showSection(sectionName) {
-    const sections = ['login', 'register', 'main', 'profile', 'team'];
+    const sections = ['login', 'register', 'main', 'profile', 'team', 'tests'];
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
         if(el) el.classList.add('hidden');
     });
-    document.getElementById(sectionName + 'Section').classList.remove('hidden');
+    const target = document.getElementById(sectionName + 'Section');
+    if (target) target.classList.remove('hidden');
 }
