@@ -19,7 +19,7 @@
             <a onclick="showSection('profile')">Профіль</a>
             <a onclick="showSection('news')">Новини</a>
             <a onclick="showSection('team')">Партія</a>
-            <a onclick="window.open('https://docs.google.com/forms/')">Тести</a>
+            <a onclick="showSection('tests')">Тести</a> 
             <a onclick="showSection('support')">Підтримка / Ідея</a>
             <a id="adminBtn" onclick="showSection('admin')" style="display: none; color: red; font-weight: bold;">АА</a>
             <div class="divider"></div>
@@ -88,13 +88,23 @@
         <button onclick="showSection('main')">Назад</button>
     </div>
 
+    <div id="testsSection" class="container hidden">
+        <h2>Доступні Тести</h2>
+        <p>Виберіть завдання для виконання:</p>
+        
+        <div id="testsListContainer" class="menu-grid" style="grid-template-columns: 1fr;">
+            <p>Завантаження...</p>
+        </div>
+        
+        <br>
+        <button onclick="showSection('main')">⬅️ Назад</button>
+    </div>
+
     <div id="adminSection" class="container hidden" style="border: 2px solid red;">
         <h2 style="color: red;">АА</h2>
-        
         <div class="admin-tabs">
             <button onclick="document.getElementById('createTestForm').classList.toggle('hidden')">Відкрити Конструктор</button>
         </div>
-
         <div id="createTestForm" class="hidden" style="text-align: left; margin-top: 15px;">
             <h3>Нове запитання</h3>
             <label>Тип:</label>
@@ -102,36 +112,28 @@
                 <option value="mandatory">Обовязковий (Блокує вхід)</option>
                 <option value="optional">Звичайний (В меню Тести)</option>
             </select>
-            
             <input type="text" id="newQText" placeholder="Текст запитання...">
-            
             <p style="margin-bottom: 5px; font-weight: bold;">Фото (необов'язково):</p>
             <input type="file" id="newQFile" accept="image/*">
             <p id="uploadStatus" style="font-size: 0.8em; color: blue;"></p>
             <input type="hidden" id="uploadedImageUrl">
-            
             <h4>Варіанти (Текст | Бали):</h4>
             <div id="answersContainer">
                 <input type="text" class="ans-text" placeholder="Відповідь 1">
-                <input type="number" class="ans-score" placeholder="Бали (напр. 100 або -50)">
+                <input type="number" class="ans-score" placeholder="Бали">
                 <br>
                 <input type="text" class="ans-text" placeholder="Відповідь 2">
                 <input type="number" class="ans-score" placeholder="Бали">
             </div>
             <button onclick="addAnswerField()" style="background: grey; font-size: 0.8em;">+ Ще варіант</button>
             <hr>
-            
             <button onclick="addToDraft()" style="background: orange; color: black; font-weight: bold;">Додати в список</button>
         </div>
-        
         <div id="draftContainer" style="margin-top: 20px; border-top: 2px solid #ccc; padding-top: 10px;">
-            <h3>Список питань до завантаження:</h3>
-            <div id="draftList" style="text-align: left; margin-bottom: 15px;">
-                <p style="color: grey;">Поки що пусто...</p>
-            </div>
+            <h3>📋 Список питань:</h3>
+            <div id="draftList" style="text-align: left; margin-bottom: 15px;"><p style="color: grey;">Пусто...</p></div>
             <button id="btnPublish" onclick="publishTest()" style="background: green; display: none;">ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ</button>
         </div>
-
         <br>
         <button onclick="showSection('main')">Назад</button>
     </div>
