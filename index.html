@@ -69,40 +69,76 @@
     </div>
 
     <div id="newsSection" class="container hidden">
-        <h2>📰 Новини</h2>
+        <h2>Новини</h2>
         <p>Новин поки що немає.</p>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="teamSection" class="container hidden">
-        <h2>🛡️ Партія</h2>
-        <p>Ваш статус у партії: <strong id="teamStatusText">Нок</strong></p>
+        <h2>Партія</h2>
+        <p>Ваш статус у партії: <strong id="teamStatusText">Нов</strong></p>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="supportSection" class="container hidden">
         <h2>Підтримка та Ідеї</h2>
         <p>Маєте ідею для партії або знайшли помилку?</p>
-        
         <textarea id="supportMessage" placeholder="Опишіть вашу ідею тут..." rows="5"></textarea>
-        
         <button id="btnSupport" onclick="sendFeedback()">Відправити</button>
         <div id="supportStatus" class="status-msg"></div>
-        
         <br><br>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="adminSection" class="container hidden" style="border: 2px solid red;">
         <h2 style="color: red;">АА</h2>
-        <p>Вітаєм</p>
-        <p>Панель уп</p>
         
-        <button onclick="window.open('https://docs.google.com/spreadsheets/')">Відкрити Базу</button>
-        <button onclick="alert('Функція в розробці')">Зробити оголошення</button>
+        <div class="admin-tabs">
+            <button onclick="document.getElementById('createTestForm').classList.toggle('hidden')">Створити Запитання</button>
+        </div>
+
+        <div id="createTestForm" class="hidden" style="text-align: left; margin-top: 15px;">
+            <h3>Нове запитання</h3>
+            <label>Тип:</label>
+            <select id="newQType">
+                <option value="mandatory">Обовязковий (Блокує вхід)</option>
+                <option value="optional">Звичайний (В меню Тести)</option>
+            </select>
+            
+            <input type="text" id="newQText" placeholder="Текст запитання...">
+            
+            <p style="margin-bottom: 5px; font-weight: bold;">Фото (необов'язково):</p>
+            <input type="file" id="newQFile" accept="image/*">
+            <p id="uploadStatus" style="font-size: 0.8em; color: blue;"></p>
+            <input type="hidden" id="uploadedImageUrl">
+            
+            <h4>Варіанти (Текст | Бали):</h4>
+            <div id="answersContainer">
+                <input type="text" class="ans-text" placeholder="Відповідь 1">
+                <input type="number" class="ans-score" placeholder="Бали (напр. 100 або -50)">
+                <br>
+                <input type="text" class="ans-text" placeholder="Відповідь 2">
+                <input type="number" class="ans-score" placeholder="Бали">
+            </div>
+            <button onclick="addAnswerField()" style="background: grey; font-size: 0.8em;">+ Ще варіант</button>
+            
+            <hr>
+            <button onclick="uploadAndSave()" style="background: green;">Зберегти Запитання</button>
+        </div>
         
-        <br><br>
+        <br>
         <button onclick="showSection('main')">Назад</button>
+    </div>
+
+    <div id="testPlayerSection" class="container hidden" style="max-width: 500px;">
+        <div id="testImage" style="width: 100%; height: 200px; background-size: cover; background-position: center; border-radius: 10px; display: none; margin-bottom: 15px;"></div>
+        
+        <h2 id="testQuestionText">Запитання...</h2>
+        
+        <div id="testAnswers" class="menu-grid">
+            </div>
+        
+        <p style="font-size: 0.8em; color: grey; margin-top: 10px;">Питання <span id="qCurrent">0</span> з <span id="qTotal">0</span></p>
     </div>
 
     <script src="script.js"></script>
