@@ -24,7 +24,6 @@ body {
     display: block;
 }
 
-
 .profile-header {
     display: none; 
     align-items: center;
@@ -116,10 +115,23 @@ body {
     max-width: 420px;
     margin: auto;
     position: relative;
+    
+   
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 h1 { color: #111827; margin-bottom: 1rem; }
 h2 { color: #374151; margin-top: 1rem; }
+
+
+#testQuestionText {
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
 
 input, textarea {
     width: 100%;
@@ -129,6 +141,7 @@ input, textarea {
     border-radius: 8px;
     box-sizing: border-box;
 }
+
 
 button, .btn {
     background-color: #4f46e5;
@@ -142,6 +155,13 @@ button, .btn {
     width: 100%;
     font-size: 16px;
     transition: background 0.2s;
+
+
+    white-space: normal;
+    word-wrap: break-word;
+    height: auto;
+    min-height: 50px;
+    line-height: 1.4;
 }
 
 button:hover { background-color: #4338ca; }
