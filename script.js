@@ -3,6 +3,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxD9J2olFdDqc
 
 let currentUser = JSON.parse(localStorage.getItem('userData')) || null;
 
+
 let activeTestQuestions = [];
 let currentQuestionIndex = 0;
 let currentTestScore = 0;
@@ -146,8 +147,9 @@ function loginSuccess(userObj) {
     document.getElementById('loginPass').value = '';
     document.getElementById('loginStatus').innerText = '';
     
+    let passedStatus = String(userObj.test_passed).toLowerCase();
 
-    if (userObj.test_passed === "false" && userObj.role !== 'admin') {
+    if (passedStatus === "false" && userObj.role !== 'admin') {
         startMandatoryTest(); 
     } else {
         showSection('main');
@@ -162,9 +164,7 @@ function handleLogout() {
     showSection('login');
 }
 
-
 function showSection(sectionName) {
-
     const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer'];
     
     sections.forEach(s => {
@@ -178,7 +178,6 @@ function showSection(sectionName) {
     const dropdown = document.getElementById("dropdownMenu");
     if (dropdown) dropdown.classList.remove('show');
 }
-
 
 function sendFeedback() {
     const text = document.getElementById('supportMessage').value;
@@ -240,7 +239,7 @@ function uploadAndSave() {
         const file = fileInput.files[0];
         const reader = new FileReader();
         
-        statusText.innerText = "Завантаження фото ";
+        statusText.innerText = "Завантаження фото...";
         
         reader.onload = function(e) {
             const rawData = e.target.result.split(',')[1];
@@ -257,10 +256,8 @@ function uploadAndSave() {
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    statusText.innerText = "✅ Фото завантажено!";
-                 
+                    statusText.innerText = "Фото завантажено!";
                     document.getElementById('uploadedImageUrl').value = data.imageUrl;
-                 
                     saveQuestionToDB(); 
                 } else {
                     statusText.innerText = "❌ Помилка завантаження фото.";
@@ -269,17 +266,15 @@ function uploadAndSave() {
             })
             .catch(err => {
                 console.error(err);
-                statusText.innerText = "❌ Помилка з'єднання.";
+                statusText.innerText = "Помилка з'єднання.";
             });
         };
         reader.readAsDataURL(file); 
     } else {
-  
         document.getElementById('uploadedImageUrl').value = "";
         saveQuestionToDB();
     }
 }
-
 
 function saveQuestionToDB() {
     const type = document.getElementById('newQType').value;
@@ -317,7 +312,6 @@ function saveQuestionToDB() {
     .then(res => res.json())
     .then(data => {
         alert(data.message);
- 
         document.getElementById('newQText').value = '';
         document.getElementById('newQFile').value = '';
         document.getElementById('uploadStatus').innerText = '';
@@ -325,9 +319,7 @@ function saveQuestionToDB() {
     });
 }
 
-
 function startMandatoryTest() {
- 
     document.getElementById('profileCorner').style.display = 'none';
     
     fetch(GOOGLE_SCRIPT_URL, {
@@ -337,7 +329,6 @@ function startMandatoryTest() {
     .then(res => res.json())
     .then(data => {
         if (data.data.length === 0) {
-  
             showSection('main');
             document.getElementById('profileCorner').style.display = 'flex';
             return;
@@ -351,7 +342,6 @@ function startMandatoryTest() {
         renderQuestion();
     });
 }
-
 
 function renderQuestion() {
     showSection('testPlayer');
@@ -369,7 +359,6 @@ function renderQuestion() {
         imgDiv.style.display = 'none';
     }
 
-
     const ansDiv = document.getElementById('testAnswers');
     ansDiv.innerHTML = '';
     
@@ -377,12 +366,10 @@ function renderQuestion() {
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.innerText = ans.text;
-       
         btn.onclick = function() { submitAnswer(ans.score); };
         ansDiv.appendChild(btn);
     });
 }
-
 
 function submitAnswer(score) {
     currentTestScore += score;
@@ -394,7 +381,6 @@ function submitAnswer(score) {
         finishTest();
     }
 }
-
 
 function finishTest() {
     document.getElementById('testQuestionText').innerText = "Тест завершено!";
