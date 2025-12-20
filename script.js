@@ -35,7 +35,6 @@ window.onclick = function(event) {
     }
 }
 
-
 function performRegister() {
     const user = document.getElementById('regUser').value;
     const pass = document.getElementById('regPass').value;
@@ -104,7 +103,8 @@ function performLogin() {
                 score: data.data.score,
                 team: data.data.team,
                 test_passed: data.data.test_passed,
-                role: data.data.role
+                role: data.data.role,
+                completed_ids: data.data.completed_ids
             };
             currentUser = userData;
             localStorage.setItem('userData', JSON.stringify(userData));
@@ -129,12 +129,9 @@ function loginSuccess(userObj) {
     const avatarEl = document.getElementById('avatarCircle');
     if(avatarEl) avatarEl.innerText = firstLetter;
 
-    const scoreEl = document.getElementById('profileScore');
-    if(scoreEl) scoreEl.innerText = userObj.score;
-
-    const teamEl = document.getElementById('profileTeam');
-    if(teamEl) teamEl.innerText = userObj.team;
-
+    document.getElementById('profileScore').innerText = userObj.score;
+    document.getElementById('profileTeam').innerText = userObj.team;
+    
     const teamStatusText = document.getElementById('teamStatusText');
     if(teamStatusText) teamStatusText.innerText = userObj.team;
     
@@ -167,14 +164,21 @@ function handleLogout() {
     showSection('login');
 }
 
+
 function showSection(sectionName) {
-    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer'];
+   
+    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer', 'tests'];
     
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
         if(el) el.classList.add('hidden');
     });
     
+    
+    if (sectionName === 'tests') {
+        loadOptionalTests();
+    }
+
     const target = document.getElementById(sectionName + 'Section');
     if (target) target.classList.remove('hidden');
 
@@ -225,6 +229,8 @@ function sendFeedback() {
     });
 }
 
+
+
 function addAnswerField() {
     const container = document.getElementById('answersContainer');
     container.innerHTML += `
@@ -234,19 +240,17 @@ function addAnswerField() {
     `;
 }
 
-
 function addToDraft() {
     console.log("Button Clicked: addToDraft"); 
 
     const fileInput = document.getElementById('newQFile');
     const statusText = document.getElementById('uploadStatus');
 
-   
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
         const reader = new FileReader();
         
-        statusText.innerText = "⏳ Завантаження фото...";
+        statusText.innerText = " Завантаження фото...";
         
         reader.onload = function(e) {
             const rawData = e.target.result.split(',')[1];
@@ -263,7 +267,7 @@ function addToDraft() {
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    statusText.innerText = "✅ Фото ок!";
+                    statusText.innerText = " Фото ок!";
                     pushQuestionToArray(data.imageUrl);
                 } else {
                     statusText.innerText = " Помилка фото.";
@@ -273,11 +277,9 @@ function addToDraft() {
         };
         reader.readAsDataURL(file); 
     } else {
-        
         pushQuestionToArray(""); 
     }
 }
-
 
 function pushQuestionToArray(imgUrl) {
     const type = document.getElementById('newQType').value;
@@ -301,7 +303,6 @@ function pushQuestionToArray(imgUrl) {
         return;
     }
 
-   
     const questionObj = {
         type: type,
         question: text,
@@ -309,18 +310,13 @@ function pushQuestionToArray(imgUrl) {
         answers: answers
     };
 
-   
     draftQuestions.push(questionObj);
-    
-    
     renderDraftList();
     
-   
     document.getElementById('newQText').value = '';
     document.getElementById('newQFile').value = '';
     document.getElementById('uploadStatus').innerText = '';
     
- 
     document.getElementById('answersContainer').innerHTML = `
         <input type="text" class="ans-text" placeholder="Відповідь 1">
         <input type="number" class="ans-score" placeholder="Бали">
@@ -329,7 +325,6 @@ function pushQuestionToArray(imgUrl) {
         <input type="number" class="ans-score" placeholder="Бали">
     `;
 }
-
 
 function renderDraftList() {
     const listDiv = document.getElementById('draftList');
@@ -359,12 +354,10 @@ function renderDraftList() {
     btnPublish.innerText = `🚀 ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ (${draftQuestions.length})`;
 }
 
-
 function removeDraft(index) {
     draftQuestions.splice(index, 1);
     renderDraftList();
 }
-
 
 function publishTest() {
     if (draftQuestions.length === 0) return;
@@ -390,14 +383,60 @@ function publishTest() {
             alert("Помилка: " + data.message);
         }
         btn.disabled = false;
-        btn.innerText = "🚀 ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
+        btn.innerText = "ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
     })
     .catch(err => {
         console.error(err);
         alert("Помилка з'єднання");
         btn.disabled = false;
-        btn.innerText = "🚀 ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
+        btn.innerText = "ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
     });
+}
+
+
+
+function loadOptionalTests() {
+    const container = document.getElementById('testsListContainer');
+    container.innerHTML = "<p>Оновлення списку...</p>";
+    
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "getTests", type: "optional" })
+    })
+    .then(res => res.json())
+    .then(data => {
+        container.innerHTML = "";
+        
+       
+        const completed = currentUser.completed_ids ? String(currentUser.completed_ids).split(',') : [];
+        
+       
+        const available = data.data.filter(q => !completed.includes(String(q.id)));
+        
+        if (available.length === 0) {
+            container.innerHTML = "<p>Всі тести пройдено! Чекайте нових.</p>";
+            return;
+        }
+        
+        available.forEach(q => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerHTML = `📝 ${q.text}`;
+            btn.style.textAlign = "left";
+            btn.onclick = function() { startSingleTest(q); };
+            container.appendChild(btn);
+        });
+    });
+}
+
+
+function startSingleTest(questionObj) {
+    activeTestQuestions = [questionObj]; 
+    currentQuestionIndex = 0;
+    currentTestScore = 0;
+    isTakingMandatory = false;
+    
+    renderQuestion(); 
 }
 
 
@@ -470,13 +509,17 @@ function finishTest() {
     document.getElementById('testAnswers').innerHTML = "<p>Обробка результатів...</p>";
     document.getElementById('testImage').style.display = 'none';
     
+    
+    let passedIds = activeTestQuestions.map(q => q.id);
+
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({
             action: "submitTestResult",
             username: currentUser.username,
             points: currentTestScore,
-            isMandatory: isTakingMandatory
+            isMandatory: isTakingMandatory,
+            passedIds: passedIds 
         })
     })
     .then(res => res.json())
@@ -484,11 +527,24 @@ function finishTest() {
         let msg = "Ваш результат: " + (currentTestScore > 0 ? "+" : "") + currentTestScore + " балів!";
         alert(msg);
         
+        
         currentUser.score = data.newScore;
+        
+        
+        if (data.combinedIds) {
+            currentUser.completed_ids = data.combinedIds;
+        }
+        
         if(isTakingMandatory) currentUser.test_passed = "true";
         localStorage.setItem('userData', JSON.stringify(currentUser));
         
         document.getElementById('profileCorner').style.display = 'flex';
-        showSection('main');
+        
+       
+        if (!isTakingMandatory) {
+            showSection('tests');
+        } else {
+            showSection('main');
+        }
     });
 }
