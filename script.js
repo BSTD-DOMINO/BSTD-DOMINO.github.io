@@ -3,6 +3,11 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxD9J2olFdDqc
 
 let currentUser = JSON.parse(localStorage.getItem('userData')) || null;
 
+let activeTestQuestions = [];
+let currentQuestionIndex = 0;
+let currentTestScore = 0;
+let isTakingMandatory = false;
+
 window.onload = function() {
     if (currentUser) {
         loginSuccess(currentUser);
@@ -141,7 +146,12 @@ function loginSuccess(userObj) {
     document.getElementById('loginPass').value = '';
     document.getElementById('loginStatus').innerText = '';
     
-    showSection('main');
+
+    if (userObj.test_passed === "false" && userObj.role !== 'admin') {
+        startMandatoryTest(); 
+    } else {
+        showSection('main');
+    }
 }
 
 function handleLogout() {
@@ -152,8 +162,10 @@ function handleLogout() {
     showSection('login');
 }
 
+
 function showSection(sectionName) {
-    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin'];
+
+    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer'];
     
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
@@ -167,6 +179,7 @@ function showSection(sectionName) {
     if (dropdown) dropdown.classList.remove('show');
 }
 
+
 function sendFeedback() {
     const text = document.getElementById('supportMessage').value;
     const statusDiv = document.getElementById('supportStatus');
@@ -177,7 +190,6 @@ function sendFeedback() {
         statusDiv.style.color = "red";
         return;
     }
-
     if (!currentUser) {
         statusDiv.innerText = "Спочатку увійдіть в акаунт!";
         statusDiv.style.color = "red";
@@ -190,11 +202,7 @@ function sendFeedback() {
 
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({ 
-            action: "feedback", 
-            username: currentUser.username, 
-            message: text 
-        })
+        body: JSON.stringify({ action: "feedback", username: currentUser.username, message: text })
     })
     .then(res => res.json())
     .then(data => {
@@ -212,5 +220,206 @@ function sendFeedback() {
         btn.disabled = false;
         statusDiv.innerText = "Помилка з'єднання.";
         console.error(err);
+    });
+}
+
+function addAnswerField() {
+    const container = document.getElementById('answersContainer');
+    container.innerHTML += `
+        <br>
+        <input type="text" class="ans-text" placeholder="Відповідь">
+        <input type="number" class="ans-score" placeholder="Бали">
+    `;
+}
+
+function uploadAndSave() {
+    const fileInput = document.getElementById('newQFile');
+    const statusText = document.getElementById('uploadStatus');
+    
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        
+        statusText.innerText = "Завантаження фото ";
+        
+        reader.onload = function(e) {
+            const rawData = e.target.result.split(',')[1];
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "uploadImage",
+                    fileName: file.name,
+                    mimeType: file.type,
+                    fileData: rawData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    statusText.innerText = "✅ Фото завантажено!";
+                 
+                    document.getElementById('uploadedImageUrl').value = data.imageUrl;
+                 
+                    saveQuestionToDB(); 
+                } else {
+                    statusText.innerText = "❌ Помилка завантаження фото.";
+                    alert("Помилка фото: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                statusText.innerText = "❌ Помилка з'єднання.";
+            });
+        };
+        reader.readAsDataURL(file); 
+    } else {
+  
+        document.getElementById('uploadedImageUrl').value = "";
+        saveQuestionToDB();
+    }
+}
+
+
+function saveQuestionToDB() {
+    const type = document.getElementById('newQType').value;
+    const text = document.getElementById('newQText').value;
+    const image = document.getElementById('uploadedImageUrl').value; 
+    
+    const ansTexts = document.querySelectorAll('.ans-text');
+    const ansScores = document.querySelectorAll('.ans-score');
+    let answers = [];
+    
+    for(let i=0; i<ansTexts.length; i++) {
+        if(ansTexts[i].value) {
+            answers.push({
+                text: ansTexts[i].value,
+                score: parseInt(ansScores[i].value) || 0
+            });
+        }
+    }
+
+    if (!text || answers.length < 1) {
+        alert("Заповніть текст і варіанти!");
+        return;
+    }
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "addQuestion",
+            type: type,
+            question: text,
+            image: image,
+            answers: answers
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+ 
+        document.getElementById('newQText').value = '';
+        document.getElementById('newQFile').value = '';
+        document.getElementById('uploadStatus').innerText = '';
+        document.getElementById('uploadedImageUrl').value = '';
+    });
+}
+
+
+function startMandatoryTest() {
+ 
+    document.getElementById('profileCorner').style.display = 'none';
+    
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "getTests", type: "mandatory" })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.data.length === 0) {
+  
+            showSection('main');
+            document.getElementById('profileCorner').style.display = 'flex';
+            return;
+        }
+        
+        activeTestQuestions = data.data;
+        currentQuestionIndex = 0;
+        currentTestScore = 0;
+        isTakingMandatory = true;
+        
+        renderQuestion();
+    });
+}
+
+
+function renderQuestion() {
+    showSection('testPlayer');
+    const q = activeTestQuestions[currentQuestionIndex];
+    
+    document.getElementById('testQuestionText').innerText = q.text;
+    document.getElementById('qCurrent').innerText = currentQuestionIndex + 1;
+    document.getElementById('qTotal').innerText = activeTestQuestions.length;
+
+    const imgDiv = document.getElementById('testImage');
+    if (q.image) {
+        imgDiv.style.backgroundImage = "url('" + q.image + "')";
+        imgDiv.style.display = 'block';
+    } else {
+        imgDiv.style.display = 'none';
+    }
+
+
+    const ansDiv = document.getElementById('testAnswers');
+    ansDiv.innerHTML = '';
+    
+    q.answers.forEach(ans => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.innerText = ans.text;
+       
+        btn.onclick = function() { submitAnswer(ans.score); };
+        ansDiv.appendChild(btn);
+    });
+}
+
+
+function submitAnswer(score) {
+    currentTestScore += score;
+    currentQuestionIndex++;
+    
+    if (currentQuestionIndex < activeTestQuestions.length) {
+        renderQuestion();
+    } else {
+        finishTest();
+    }
+}
+
+
+function finishTest() {
+    document.getElementById('testQuestionText').innerText = "Тест завершено!";
+    document.getElementById('testAnswers').innerHTML = "<p>Обробка результатів...</p>";
+    document.getElementById('testImage').style.display = 'none';
+    
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "submitTestResult",
+            username: currentUser.username,
+            points: currentTestScore,
+            isMandatory: isTakingMandatory
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        let msg = "Ваш результат: " + (currentTestScore > 0 ? "+" : "") + currentTestScore + " балів!";
+        alert(msg);
+        
+        currentUser.score = data.newScore;
+        if(isTakingMandatory) currentUser.test_passed = "true";
+        localStorage.setItem('userData', JSON.stringify(currentUser));
+        
+        document.getElementById('profileCorner').style.display = 'flex';
+        showSection('main');
     });
 }
