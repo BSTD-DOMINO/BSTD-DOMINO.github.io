@@ -92,7 +92,7 @@
         <h2 style="color: red;">АА</h2>
         
         <div class="admin-tabs">
-            <button onclick="document.getElementById('createTestForm').classList.toggle('hidden')">Створити Запитання</button>
+            <button onclick="document.getElementById('createTestForm').classList.toggle('hidden')">Відкрити Конструктор</button>
         </div>
 
         <div id="createTestForm" class="hidden" style="text-align: left; margin-top: 15px;">
@@ -120,20 +120,26 @@
             </div>
             <button onclick="addAnswerField()" style="background: grey; font-size: 0.8em;">+ Ще варіант</button>
             <hr>
-            <button onclick="uploadAndSave()" style="background: green;">Зберегти Запитання</button>
+            
+            <button onclick="addToDraft()" style="background: orange; color: black; font-weight: bold;">Додати в список</button>
         </div>
+        
+        <div id="draftContainer" style="margin-top: 20px; border-top: 2px solid #ccc; padding-top: 10px;">
+            <h3>Список питань до завантаження:</h3>
+            <div id="draftList" style="text-align: left; margin-bottom: 15px;">
+                <p style="color: grey;">Поки що пусто...</p>
+            </div>
+            <button id="btnPublish" onclick="publishTest()" style="background: green; display: none;">ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ</button>
+        </div>
+
         <br>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="testPlayerSection" class="container hidden" style="max-width: 500px;">
-        
         <img id="testImage" style="width: 100%; max-height: 250px; object-fit: contain; display: none; margin-bottom: 15px; border-radius: 8px;" referrerpolicy="no-referrer">
         <h2 id="testQuestionText">Запитання...</h2>
-        
-        <div id="testAnswers" class="menu-grid">
-            </div>
-        
+        <div id="testAnswers" class="menu-grid"></div>
         <p style="font-size: 0.8em; color: grey; margin-top: 10px;">Питання <span id="qCurrent">0</span> з <span id="qTotal">0</span></p>
     </div>
 
