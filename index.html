@@ -69,32 +69,36 @@
     </div>
 
     <div id="newsSection" class="container hidden">
-        <h2>Новини</h2>
+        <h2>📰 Новини</h2>
         <p>Новин поки що немає.</p>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="teamSection" class="container hidden">
-        <h2>Партія</h2>
-        <p>Ваш статус у партії: <strong id="teamStatusText">Но</strong></p>
+        <h2>🛡️ Партія</h2>
+        <p>Ваш статус у партії: <strong id="teamStatusText">Нок</strong></p>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="supportSection" class="container hidden">
         <h2>Підтримка та Ідеї</h2>
-        <p>Маєте ідею?</p>
-        <textarea placeholder="Опишіть вашу ідею тут..." rows="5"></textarea>
-        <button onclick="alert('Дякуємо! Відправлено.')">Відправити</button>
+        <p>Маєте ідею для партії або знайшли помилку?</p>
+        
+        <textarea id="supportMessage" placeholder="Опишіть вашу ідею тут..." rows="5"></textarea>
+        
+        <button id="btnSupport" onclick="sendFeedback()">Відправити</button>
+        <div id="supportStatus" class="status-msg"></div>
+        
         <br><br>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="adminSection" class="container hidden" style="border: 2px solid red;">
         <h2 style="color: red;">АА</h2>
-        <p>Віт!</p>
-        <p>Ту.</p>
+        <p>Вітаєм</p>
+        <p>Панель уп</p>
         
-        <button onclick="window.open('https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID')">Відкрити Базу (Таблицю)</button>
+        <button onclick="window.open('https://docs.google.com/spreadsheets/')">Відкрити Базу</button>
         <button onclick="alert('Функція в розробці')">Зробити оголошення</button>
         
         <br><br>
