@@ -21,9 +21,7 @@
             <a onclick="showSection('team')">Партія</a>
             <a onclick="window.open('https://docs.google.com/forms/')">Тести</a>
             <a onclick="showSection('support')">Підтримка / Ідея</a>
-            
             <a id="adminBtn" onclick="showSection('admin')" style="display: none; color: red; font-weight: bold;">АА</a>
-            
             <div class="divider"></div>
             <a onclick="handleLogout()" class="logout-btn">Вихід</a>
         </div>
@@ -121,18 +119,16 @@
                 <input type="number" class="ans-score" placeholder="Бали">
             </div>
             <button onclick="addAnswerField()" style="background: grey; font-size: 0.8em;">+ Ще варіант</button>
-            
             <hr>
             <button onclick="uploadAndSave()" style="background: green;">Зберегти Запитання</button>
         </div>
-        
         <br>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="testPlayerSection" class="container hidden" style="max-width: 500px;">
-        <div id="testImage" style="width: 100%; height: 200px; background-size: cover; background-position: center; border-radius: 10px; display: none; margin-bottom: 15px;"></div>
         
+        <img id="testImage" style="width: 100%; max-height: 250px; object-fit: contain; display: none; margin-bottom: 15px; border-radius: 8px;" referrerpolicy="no-referrer">
         <h2 id="testQuestionText">Запитання...</h2>
         
         <div id="testAnswers" class="menu-grid">
