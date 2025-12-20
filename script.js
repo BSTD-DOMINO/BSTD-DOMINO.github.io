@@ -6,7 +6,10 @@ let currentQuestionIndex = 0;
 let currentTestScore = 0;
 let isTakingMandatory = false;
 
+
 let draftQuestions = [];
+
+console.log("Script Loaded Correctly ✅");
 
 window.onload = function() {
     if (currentUser) {
@@ -31,6 +34,7 @@ window.onclick = function(event) {
         }
     }
 }
+
 
 function performRegister() {
     const user = document.getElementById('regUser').value;
@@ -70,6 +74,7 @@ function performRegister() {
         console.error(err);
     });
 }
+
 
 function performLogin() {
     const user = document.getElementById('loginUser').value;
@@ -146,6 +151,7 @@ function loginSuccess(userObj) {
     document.getElementById('loginStatus').innerText = '';
     
     let passedStatus = String(userObj.test_passed).toLowerCase();
+
     if (passedStatus === "false" && userObj.role !== 'admin') {
         startMandatoryTest(); 
     } else {
@@ -163,12 +169,15 @@ function handleLogout() {
 
 function showSection(sectionName) {
     const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer'];
+    
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
         if(el) el.classList.add('hidden');
     });
+    
     const target = document.getElementById(sectionName + 'Section');
     if (target) target.classList.remove('hidden');
+
     const dropdown = document.getElementById("dropdownMenu");
     if (dropdown) dropdown.classList.remove('show');
 }
@@ -177,9 +186,22 @@ function sendFeedback() {
     const text = document.getElementById('supportMessage').value;
     const statusDiv = document.getElementById('supportStatus');
     const btn = document.getElementById('btnSupport');
-    if (!text.trim()) { statusDiv.innerText = "Напишіть хоч щось!"; statusDiv.style.color = "red"; return; }
-    if (!currentUser) { statusDiv.innerText = "Спочатку увійдіть в акаунт!"; statusDiv.style.color = "red"; return; }
-    btn.disabled = true; statusDiv.innerText = "Відправляємо..."; statusDiv.style.color = "blue";
+
+    if (!text.trim()) {
+        statusDiv.innerText = "Напишіть хоч щось!";
+        statusDiv.style.color = "red";
+        return;
+    }
+    if (!currentUser) {
+        statusDiv.innerText = "Спочатку увійдіть в акаунт!";
+        statusDiv.style.color = "red";
+        return;
+    }
+
+    btn.disabled = true;
+    statusDiv.innerText = "Відправляємо...";
+    statusDiv.style.color = "blue";
+
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({ action: "feedback", username: currentUser.username, message: text })
@@ -188,27 +210,42 @@ function sendFeedback() {
     .then(data => {
         btn.disabled = false;
         if(data.status === "success") {
-            statusDiv.innerText = "Відправлено! Дяк."; statusDiv.style.color = "green";
+            statusDiv.innerText = "Відправлено! Дяк.";
+            statusDiv.style.color = "green";
             document.getElementById('supportMessage').value = "";
         } else {
-            statusDiv.innerText = "Помилка: " + data.message; statusDiv.style.color = "red";
+            statusDiv.innerText = "Помилка: " + data.message;
+            statusDiv.style.color = "red";
         }
     })
-    .catch(err => { btn.disabled = false; statusDiv.innerText = "Помилка з'єднання."; console.error(err); });
+    .catch(err => {
+        btn.disabled = false;
+        statusDiv.innerText = "Помилка з'єднання.";
+        console.error(err);
+    });
 }
 
 function addAnswerField() {
     const container = document.getElementById('answersContainer');
-    container.innerHTML += `<br><input type="text" class="ans-text" placeholder="Відповідь"><input type="number" class="ans-score" placeholder="Бали">`;
+    container.innerHTML += `
+        <br>
+        <input type="text" class="ans-text" placeholder="Відповідь">
+        <input type="number" class="ans-score" placeholder="Бали">
+    `;
 }
 
+
 function addToDraft() {
+    console.log("Button Clicked: addToDraft"); 
+
     const fileInput = document.getElementById('newQFile');
     const statusText = document.getElementById('uploadStatus');
 
+   
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
         const reader = new FileReader();
+        
         statusText.innerText = "⏳ Завантаження фото...";
         
         reader.onload = function(e) {
@@ -229,14 +266,15 @@ function addToDraft() {
                     statusText.innerText = "✅ Фото ок!";
                     pushQuestionToArray(data.imageUrl);
                 } else {
-                    statusText.innerText = "❌ Помилка фото.";
+                    statusText.innerText = " Помилка фото.";
                     alert("Помилка: " + data.message);
                 }
             });
         };
         reader.readAsDataURL(file); 
     } else {
-        pushQuestionToArray("");
+        
+        pushQuestionToArray(""); 
     }
 }
 
@@ -263,6 +301,7 @@ function pushQuestionToArray(imgUrl) {
         return;
     }
 
+   
     const questionObj = {
         type: type,
         question: text,
@@ -270,14 +309,18 @@ function pushQuestionToArray(imgUrl) {
         answers: answers
     };
 
+   
     draftQuestions.push(questionObj);
+    
     
     renderDraftList();
     
+   
     document.getElementById('newQText').value = '';
     document.getElementById('newQFile').value = '';
     document.getElementById('uploadStatus').innerText = '';
     
+ 
     document.getElementById('answersContainer').innerHTML = `
         <input type="text" class="ans-text" placeholder="Відповідь 1">
         <input type="number" class="ans-score" placeholder="Бали">
@@ -286,6 +329,7 @@ function pushQuestionToArray(imgUrl) {
         <input type="number" class="ans-score" placeholder="Бали">
     `;
 }
+
 
 function renderDraftList() {
     const listDiv = document.getElementById('draftList');
@@ -315,10 +359,12 @@ function renderDraftList() {
     btnPublish.innerText = `🚀 ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ (${draftQuestions.length})`;
 }
 
+
 function removeDraft(index) {
     draftQuestions.splice(index, 1);
     renderDraftList();
 }
+
 
 function publishTest() {
     if (draftQuestions.length === 0) return;
@@ -344,13 +390,17 @@ function publishTest() {
             alert("Помилка: " + data.message);
         }
         btn.disabled = false;
+        btn.innerText = "🚀 ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
     })
     .catch(err => {
         console.error(err);
         alert("Помилка з'єднання");
         btn.disabled = false;
+        btn.innerText = "🚀 ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
     });
 }
+
+
 
 function startMandatoryTest() {
     document.getElementById('profileCorner').style.display = 'none';
