@@ -9,7 +9,6 @@
 <body>
 
     <div class="profile-container">
-        
         <div id="profileCorner" class="profile-header" onclick="toggleMenu()">
             <span id="cornerUsername" class="profile-name">Гість</span>
             <div id="avatarCircle" class="avatar-circle">Г</div>
@@ -22,11 +21,14 @@
             <a onclick="showSection('team')">Партія</a>
             <a onclick="window.open('https://docs.google.com/forms/')">Тести</a>
             <a onclick="showSection('support')">Підтримка / Ідея</a>
+            
+            <a id="adminBtn" onclick="showSection('admin')" style="display: none; color: red; font-weight: bold;">АА</a>
+            
             <div class="divider"></div>
             <a onclick="handleLogout()" class="logout-btn">Вихід</a>
         </div>
-
     </div>
+
     <div id="loginSection" class="container">
         <h1>Вхід BSTD</h1>
         <input type="text" id="loginUser" placeholder="Логін">
@@ -48,12 +50,11 @@
     <div id="mainSection" class="container hidden">
         <h1 id="welcomeText">Вітаємо!</h1>
         <p>Доступ до ресурсів DOMINO дозволено.</p>
-        
         <div class="menu-grid">
-            <button class="btn" onclick="showSection('news')">Новини</button>
-            <button class="btn" onclick="showSection('profile')">Профіль</button>
-            <button class="btn" onclick="showSection('team')">Партія</button>
-            <button class="btn" onclick="showSection('support')">Підтримка</button>
+            <button class="btn" onclick="showSection('news')">📰 Новини</button>
+            <button class="btn" onclick="showSection('profile')">👤 Профіль</button>
+            <button class="btn" onclick="showSection('team')">🛡️ Партія</button>
+            <button class="btn" onclick="showSection('support')">💡 Підтримка</button>
         </div>
     </div>
 
@@ -75,15 +76,27 @@
 
     <div id="teamSection" class="container hidden">
         <h2>Партія</h2>
-        <p>Ваш статус у партії: <strong id="teamStatusText">Новачок</strong></p>
+        <p>Ваш статус у партії: <strong id="teamStatusText">Но</strong></p>
         <button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="supportSection" class="container hidden">
         <h2>Підтримка та Ідеї</h2>
-        <p>Маєте ідею для партії або знайшли помилку?</p>
+        <p>Маєте ідею?</p>
         <textarea placeholder="Опишіть вашу ідею тут..." rows="5"></textarea>
-        <button onclick="alert('Дякуємо! Ваше повідомлення відправлено адміністратору.')">Відправити</button>
+        <button onclick="alert('Дякуємо! Відправлено.')">Відправити</button>
+        <br><br>
+        <button onclick="showSection('main')">Назад</button>
+    </div>
+
+    <div id="adminSection" class="container hidden" style="border: 2px solid red;">
+        <h2 style="color: red;">АА</h2>
+        <p>Віт!</p>
+        <p>Ту.</p>
+        
+        <button onclick="window.open('https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID')">Відкрити Базу (Таблицю)</button>
+        <button onclick="alert('Функція в розробці')">Зробити оголошення</button>
+        
         <br><br>
         <button onclick="showSection('main')">Назад</button>
     </div>
