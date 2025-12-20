@@ -1,8 +1,6 @@
-
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxD9J2olFdDqcAkt2e6BMYKshz5oWIS0kVQnG7yktbe32adgLm7qH_qANJtR7q7GQB6/exec"; 
 
 let currentUser = JSON.parse(localStorage.getItem('userData')) || null;
-
 
 let activeTestQuestions = [];
 let currentQuestionIndex = 0;
@@ -142,7 +140,6 @@ function loginSuccess(userObj) {
     }
 
     document.getElementById('profileCorner').style.display = 'flex';
-
     document.getElementById('loginUser').value = '';
     document.getElementById('loginPass').value = '';
     document.getElementById('loginStatus').innerText = '';
@@ -260,7 +257,7 @@ function uploadAndSave() {
                     document.getElementById('uploadedImageUrl').value = data.imageUrl;
                     saveQuestionToDB(); 
                 } else {
-                    statusText.innerText = "❌ Помилка завантаження фото.";
+                    statusText.innerText = "Помилка завантаження фото.";
                     alert("Помилка фото: " + data.message);
                 }
             })
@@ -351,12 +348,12 @@ function renderQuestion() {
     document.getElementById('qCurrent').innerText = currentQuestionIndex + 1;
     document.getElementById('qTotal').innerText = activeTestQuestions.length;
 
-    const imgDiv = document.getElementById('testImage');
+    const imgEl = document.getElementById('testImage');
     if (q.image) {
-        imgDiv.style.backgroundImage = "url('" + q.image + "')";
-        imgDiv.style.display = 'block';
+        imgEl.src = q.image; 
+        imgEl.style.display = 'block';
     } else {
-        imgDiv.style.display = 'none';
+        imgEl.style.display = 'none';
     }
 
     const ansDiv = document.getElementById('testAnswers');
