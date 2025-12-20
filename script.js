@@ -11,7 +11,6 @@ window.onload = function() {
     }
 };
 
-
 function toggleMenu() {
     document.getElementById("dropdownMenu").classList.toggle("show");
 }
@@ -27,7 +26,6 @@ window.onclick = function(event) {
         }
     }
 }
-
 
 function performRegister() {
     const user = document.getElementById('regUser').value;
@@ -68,7 +66,6 @@ function performRegister() {
     });
 }
 
-
 function performLogin() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
@@ -96,7 +93,8 @@ function performLogin() {
                 username: user,
                 score: data.data.score,
                 team: data.data.team,
-                test_passed: data.data.test_passed
+                test_passed: data.data.test_passed,
+                role: data.data.role
             };
             currentUser = userData;
             localStorage.setItem('userData', JSON.stringify(userData));
@@ -113,9 +111,7 @@ function performLogin() {
     });
 }
 
-
 function loginSuccess(userObj) {
-
     document.getElementById('cornerUsername').innerText = userObj.username;
     document.getElementById('profileName').innerText = userObj.username;
     
@@ -132,6 +128,15 @@ function loginSuccess(userObj) {
     const teamStatusText = document.getElementById('teamStatusText');
     if(teamStatusText) teamStatusText.innerText = userObj.team;
     
+
+    const adminBtn = document.getElementById('adminBtn');
+    if (userObj.role === 'admin') {
+        adminBtn.style.display = 'block';
+    } else {
+        adminBtn.style.display = 'none';
+    }
+
+
     document.getElementById('profileCorner').style.display = 'flex';
 
     document.getElementById('loginUser').value = '';
@@ -145,11 +150,16 @@ function handleLogout() {
     localStorage.removeItem('userData');
     currentUser = null;
     document.getElementById('profileCorner').style.display = 'none';
+    
+
+    document.getElementById('adminBtn').style.display = 'none';
+    
     showSection('login');
 }
 
 function showSection(sectionName) {
-    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support'];
+
+    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin'];
     
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
