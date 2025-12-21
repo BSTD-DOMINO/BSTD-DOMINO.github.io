@@ -188,6 +188,7 @@ function loginSuccess(u) {
     }
 }
 
+
 function calculateRankName(score) {
     if (!rankThresholds) return "1 Учень";
     if (score >= rankThresholds.rank6) return "6 Рада Сталі Дрючка";
@@ -412,13 +413,13 @@ async function publishNews() {
         if (fileInput) {
             if (fileInput.files.length > 0) {
                 try {
-                    div.querySelector('.status-text').innerText = "Вантажу...";
+                    div.querySelector('.status-text').innerText = "⏳ Вантажу...";
                     const url = await uploadFile(fileInput.files[0]);
                     contentData.push({ type: 'image', value: url });
-                    div.querySelector('.status-text').innerText = "Ок";
+                    div.querySelector('.status-text').innerText = "✅ Ок";
                 } catch(e) { 
                     alert("Помилка фото в блоці"); 
-                    div.querySelector('.status-text').innerText = "Помилка";
+                    div.querySelector('.status-text').innerText = "❌ Помилка";
                     return; 
                 }
             }
@@ -717,7 +718,13 @@ function renderQuestion() {
         btn.className = 'btn';
         btn.innerText = ans.text;
         
-        btn.onclick = function() { submitAnswer(ans.score); };
+        
+        btn.onclick = function() {
+            
+            this.style.background = "#e67e22"; 
+            this.innerText = "⏳...";
+            submitAnswer(ans.score);
+        };
         ansDiv.appendChild(btn);
     });
 }
@@ -727,13 +734,18 @@ function submitAnswer(score) {
     currentTestScore += parseInt(score) || 0;
     
     currentQuestionIndex++;
-    if (currentQuestionIndex < activeTestQuestions.length) { 
-        renderQuestion(); 
-    } else { 
-        
-        document.getElementById('testAnswers').innerHTML = '<h3 style="color: blue;">Обробка результатів...</h3>';
-        finishTest(); 
-    }
+    
+   
+    setTimeout(() => {
+        if (currentQuestionIndex < activeTestQuestions.length) { 
+            renderQuestion(); 
+        } else { 
+           
+            document.getElementById('testAnswers').innerHTML = '<h3 style="color: blue;">Зберігаємо результат...</h3>';
+            document.getElementById('testQuestionText').style.display = 'none';
+            finishTest(); 
+        }
+    }, 200);
 }
 
 function finishTest() {
@@ -744,12 +756,18 @@ function finishTest() {
     })
     .then(res => res.json())
     .then(data => {
-        alert("Результат: " + currentTestScore);
+        alert("Тест завершено! Ваш результат: " + currentTestScore);
         currentUser.score = data.newScore;
         if (data.combinedIds) currentUser.completed_ids = data.combinedIds;
         if(isTakingMandatory) currentUser.test_passed = "true";
         localStorage.setItem('userData', JSON.stringify(currentUser));
+        
         document.getElementById('profileCorner').style.display = 'flex';
         showSection(isTakingMandatory ? 'main' : 'tests');
+    })
+    .catch(err => {
+        alert("Помилка збереження! Перевірте інтернет.");
+        console.error(err);
+        showSection('main');
     });
 }
