@@ -6,7 +6,6 @@ let currentQuestionIndex = 0;
 let currentTestScore = 0;
 let isTakingMandatory = false;
 let draftQuestions = [];
-let newsBlocks = [];
 
 console.log("Script Loaded Correctly ✅");
 
@@ -225,8 +224,10 @@ function sendFeedback() {
 
 function openNewsCreator() {
     showSection('createNews');
-    newsBlocks = [];
-    document.getElementById('newsContentBuilder').innerHTML = '<p style="color:grey; text-align:center;">Додайте блоки тексту або фото</p>';
+    
+    const container = document.getElementById('newsContentBuilder');
+    container.innerHTML = '<p id="emptyMsg" style="color:grey; text-align:center;">Додайте блоки тексту або фото (можна багато)</p>';
+    
     document.getElementById('newsTitle').value = "";
     document.getElementById('newsSubtitle').value = "";
     document.getElementById('newsTargetValue').value = "";
@@ -241,33 +242,38 @@ function toggleNewsTargetInput() {
     else input.style.display = 'block';
 }
 
+function checkEmptyMsg() {
+    const msg = document.getElementById('emptyMsg');
+    if(msg) msg.remove();
+}
+
 function addNewsTextBlock() {
+    checkEmptyMsg();
     const container = document.getElementById('newsContentBuilder');
-    if(newsBlocks.length === 0) container.innerHTML = "";
     
     const id = Date.now();
     const div = document.createElement('div');
-    div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; position: relative;";
+    div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; position: relative; border-radius: 5px;";
     div.innerHTML = `
-        <span style="font-weight:bold; font-size:0.8em; color:grey;">📝 ТЕКСТ</span>
-        <textarea id="block_text_${id}" style="width:100%; height:80px; margin-top:5px;" placeholder="Пишіть тут..."></textarea>
-        <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 5px; background:red; font-size:0.7em;">X</button>
+        <span style="font-weight:bold; font-size:0.8em; color:grey;">📝 ТЕКСТОВИЙ БЛОК</span>
+        <textarea class="news-text-input" style="width:100%; height:80px; margin-top:5px; border: 1px solid #ccc; border-radius: 4px; padding: 5px;" placeholder="Пишіть текст тут..."></textarea>
+        <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 8px; background:red; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
     `;
     container.appendChild(div);
 }
 
 function addNewsImageBlock() {
+    checkEmptyMsg();
     const container = document.getElementById('newsContentBuilder');
-    if(newsBlocks.length === 0) container.innerHTML = "";
     
     const id = Date.now();
     const div = document.createElement('div');
-    div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #eef; position: relative;";
+    div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #eef; position: relative; border-radius: 5px;";
     div.innerHTML = `
-        <span style="font-weight:bold; font-size:0.8em; color:grey;">📷 ФОТО</span>
-        <input type="file" id="block_file_${id}" accept="image/*" style="margin-top:5px;">
-        <p id="status_${id}" style="font-size:0.8em; color:blue;"></p>
-        <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 5px; background:red; font-size:0.7em;">X</button>
+        <span style="font-weight:bold; font-size:0.8em; color:grey;">📷 ФОТО БЛОК</span>
+        <input type="file" class="news-file-input" accept="image/*" style="margin-top:5px;">
+        <p class="status-text" style="font-size:0.8em; color:blue; margin: 5px 0 0 0;"></p>
+        <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 8px; background:red; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
     `;
     container.appendChild(div);
 }
@@ -279,12 +285,18 @@ async function publishNews() {
     const targetValue = document.getElementById('newsTargetValue').value;
     const coverFile = document.getElementById('newsCoverFile').files[0];
     
-    if (!title) { alert("Введіть заголовок!"); return; }
+    if (!title) { alert("Введіть заголовок новини!"); return; }
     
     const container = document.getElementById('newsContentBuilder');
     const children = container.children;
+    
+    if (children.length === 0 || (children.length === 1 && children[0].id === 'emptyMsg')) {
+        if(!confirm("Ви впевнені, що хочете створити пусту новину без тексту?")) return;
+    }
+
     let contentData = [];
     
+  
     const uploadFile = (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -292,40 +304,55 @@ async function publishNews() {
                 const rawData = e.target.result.split(',')[1];
                 fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "uploadImage", fileName: file.name, mimeType: file.type, fileData: rawData }) })
                 .then(res => res.json())
-                .then(data => { if(data.status==='success') resolve(data.imageUrl); else reject("Error"); })
+                .then(data => { if(data.status==='success') resolve(data.imageUrl); else reject("Error uploading"); })
                 .catch(err => reject(err));
             };
             reader.readAsDataURL(file);
         });
     };
 
-    alert("Публікація... Це може зайняти час.");
+    alert("Публікація... Це може зайняти час, якщо є багато фото.");
 
+  
     let coverUrl = "https://via.placeholder.com/300x150?text=News";
     if (coverFile) {
         try {
             document.getElementById('newsCoverStatus').innerText = "Вантажу обкладинку...";
             coverUrl = await uploadFile(coverFile);
-        } catch(e) { alert("Помилка обкладинки"); return; }
+        } catch(e) { alert("Помилка завантаження обкладинки"); return; }
     }
 
+   
     for (let div of children) {
-        if (div.querySelector('textarea')) {
-            const text = div.querySelector('textarea').value;
-            contentData.push({ type: 'text', value: text });
-        } else if (div.querySelector('input[type="file"]')) {
-            const fileInput = div.querySelector('input[type="file"]');
+        
+        if (div.id === 'emptyMsg') continue;
+
+       
+        const textArea = div.querySelector('.news-text-input');
+        if (textArea) {
+            contentData.push({ type: 'text', value: textArea.value });
+            continue;
+        }
+
+       
+        const fileInput = div.querySelector('.news-file-input');
+        if (fileInput) {
             if (fileInput.files.length > 0) {
                 try {
-                    div.querySelector('p').innerText = "Вантажу...";
+                    div.querySelector('.status-text').innerText = "⏳ Вантажу...";
                     const url = await uploadFile(fileInput.files[0]);
                     contentData.push({ type: 'image', value: url });
-                    div.querySelector('p').innerText = "Ок";
-                } catch(e) { alert("Помилка фото в блоці"); return; }
+                    div.querySelector('.status-text').innerText = "✅ Ок";
+                } catch(e) { 
+                    alert("Помилка фото в одному з блоків"); 
+                    div.querySelector('.status-text').innerText = "❌ Помилка";
+                    return; 
+                }
             }
         }
     }
 
+   
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({
@@ -363,7 +390,12 @@ function loadNewsFeed() {
         data.news.forEach(n => {
             const div = document.createElement('div');
             div.className = "news-card";
-            div.style = "background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; cursor: pointer;";
+            div.style = "background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; cursor: pointer; transition: transform 0.2s;";
+            
+           
+            div.onmouseover = function() { this.style.transform = "scale(1.02)"; }
+            div.onmouseout = function() { this.style.transform = "scale(1)"; }
+            
             div.onclick = function() { openNewsReader(n); };
             
             div.innerHTML = `
@@ -392,12 +424,12 @@ function openNewsReader(newsItem) {
         if (block.type === 'text') {
             const p = document.createElement('p');
             p.innerText = block.value;
-            p.style = "margin-bottom: 15px; white-space: pre-wrap;";
+            p.style = "margin-bottom: 15px; white-space: pre-wrap; font-size: 1.1em; line-height: 1.6;";
             contentDiv.appendChild(p);
         } else if (block.type === 'image') {
             const img = document.createElement('img');
             img.src = block.value;
-            img.style = "width: 100%; border-radius: 8px; margin-bottom: 15px;";
+            img.style = "width: 100%; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);";
             contentDiv.appendChild(img);
         }
     });
