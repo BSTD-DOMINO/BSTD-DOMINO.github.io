@@ -11,7 +11,7 @@ let isTakingMandatory = false;
 let draftQuestions = [];
 let newsBlocks = [];
 
-console.log("Script Loaded Correctly ✅");
+console.log("Script Loaded Correctly v4.0 ✅");
 
 window.onload = function() {
     if (currentUser) {
@@ -707,6 +707,12 @@ function renderQuestion() {
     showSection('testPlayer');
     const q = activeTestQuestions[currentQuestionIndex];
     document.getElementById('testQuestionText').innerText = q.text;
+    document.getElementById('testQuestionText').style.display = 'block'; 
+    
+    
+    const qCur = document.getElementById('qCurrent'); if(qCur) qCur.innerText = currentQuestionIndex + 1;
+    const qTot = document.getElementById('qTotal'); if(qTot) qTot.innerText = activeTestQuestions.length;
+
     const img = document.getElementById('testImage');
     if (q.image) { img.src = q.image; img.style.display = 'block'; } else { img.style.display = 'none'; }
     
@@ -718,9 +724,7 @@ function renderQuestion() {
         btn.className = 'btn';
         btn.innerText = ans.text;
         
-        
         btn.onclick = function() {
-            
             this.style.background = "#e67e22"; 
             this.innerText = "⏳...";
             submitAnswer(ans.score);
@@ -730,17 +734,13 @@ function renderQuestion() {
 }
 
 function submitAnswer(score) {
-    
     currentTestScore += parseInt(score) || 0;
-    
     currentQuestionIndex++;
     
-   
     setTimeout(() => {
         if (currentQuestionIndex < activeTestQuestions.length) { 
             renderQuestion(); 
         } else { 
-           
             document.getElementById('testAnswers').innerHTML = '<h3 style="color: blue;">Зберігаємо результат...</h3>';
             document.getElementById('testQuestionText').style.display = 'none';
             finishTest(); 
@@ -752,10 +752,23 @@ function finishTest() {
     let ids = activeTestQuestions.map(q => q.id);
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({ action: "submitTestResult", username: currentUser.username, points: currentTestScore, isMandatory: isTakingMandatory, passedIds: ids })
+        body: JSON.stringify({ 
+            action: "submitTestResult", 
+            username: currentUser.username, 
+            points: currentTestScore, 
+            isMandatory: isTakingMandatory, 
+            passedIds: ids 
+        })
     })
     .then(res => res.json())
     .then(data => {
+    
+        if(data.status === 'error') {
+            alert("Помилка сервера: " + data.message);
+            showSection('main');
+            return;
+        }
+
         alert("Тест завершено! Ваш результат: " + currentTestScore);
         currentUser.score = data.newScore;
         if (data.combinedIds) currentUser.completed_ids = data.combinedIds;
@@ -766,7 +779,7 @@ function finishTest() {
         showSection(isTakingMandatory ? 'main' : 'tests');
     })
     .catch(err => {
-        alert("Помилка збереження! Перевірте інтернет.");
+        alert("Критична помилка збереження! Перевірте консоль (F12).");
         console.error(err);
         showSection('main');
     });
