@@ -20,7 +20,7 @@
             <a onclick="showSection('news')">Новини</a>
             <a onclick="showSection('team')">Партія</a>
             <a onclick="showSection('tests')">Тести</a> 
-            <a onclick="showSection('support')">Підтримка / Ідея</a>
+            <a onclick="showSection('support')">Підтримка</a>
             <a id="adminBtn" onclick="showSection('admin')" style="display: none; color: red; font-weight: bold;">АА</a>
             <div class="divider"></div>
             <a onclick="handleLogout()" class="logout-btn">Вихід</a>
@@ -47,7 +47,6 @@
 
     <div id="mainSection" class="container hidden">
         <h1 id="welcomeText">Вітаємо!</h1>
-        <p>Доступ до ресурсів DOMINO дозволено.</p>
         <div class="menu-grid">
             <button class="btn" onclick="showSection('news')">Новини</button>
             <button class="btn" onclick="showSection('profile')">Профіль</button>
@@ -74,39 +73,26 @@
             </div>
         </div>
         <br>
-        <button onclick="showSection('main')" class="btn-back">Повернутися на головну</button>
+        <button onclick="showSection('main')" class="btn-back">На головну</button>
     </div>
 
-    <div id="newsSection" class="container hidden">
+    <div id="newsSection" class="container hidden" style="max-width: 600px;">
         <h2>Новини</h2>
-        <p>Новин поки що немає.</p>
-        <button onclick="showSection('main')">Назад</button>
-    </div>
-
-    <div id="teamSection" class="container hidden">
-        <h2>Партія</h2>
-        <p>Ваш статус у партії: <strong id="teamStatusText">Нов</strong></p>
-        <button onclick="showSection('main')">Назад</button>
-    </div>
-
-    <div id="supportSection" class="container hidden">
-        <h2>Підтримка та Ідеї</h2>
-        <p>Маєте ідею для партії або знайшли помилку?</p>
-        <textarea id="supportMessage" placeholder="Опишіть вашу ідею тут..." rows="5"></textarea>
-        <button id="btnSupport" onclick="sendFeedback()">Відправити</button>
-        <div id="supportStatus" class="status-msg"></div>
-        <br><br>
-        <button onclick="showSection('main')">Назад</button>
-    </div>
-
-    <div id="testsSection" class="container hidden">
-        <h2>Доступні Тести</h2>
-        <p>Виберіть завдання для виконання:</p>
-        <div id="testsListContainer" class="menu-grid" style="grid-template-columns: 1fr;">
-            <p>Завантаження...</p>
+        <div id="newsFeedContainer">
+            <p>Завантаження новин...</p>
         </div>
         <br>
         <button onclick="showSection('main')">Назад</button>
+    </div>
+
+    <div id="newsReaderSection" class="container hidden" style="max-width: 700px; text-align: left;">
+        <button onclick="showSection('news')" style="width: auto; padding: 5px 15px; margin-bottom: 10px; font-size: 0.9em;">До списку</button>
+        <h1 id="readerTitle" style="margin-bottom: 5px;">Заголовок</h1>
+        <h3 id="readerSubtitle" style="color: grey; margin-top: 0;">Підзаголовок</h3>
+        <p style="font-size: 0.8em; color: #888;" id="readerDate">Дата</p>
+        <hr>
+        <div id="readerContent" style="margin-top: 20px; line-height: 1.6;">
+            </div>
     </div>
 
     <div id="adminSection" class="container hidden" style="border: 2px solid red;">
@@ -114,50 +100,76 @@
         <div class="admin-tabs">
             <button onclick="document.getElementById('createTestForm').classList.toggle('hidden')">Конструктор Тестів</button>
             <br><br>
-            <button onclick="loadUserManagement()" style="background: #333;">Всі Гості / Керування</button>
+            <button onclick="loadUserManagement()" style="background: #333;">Всі Гості</button>
+            <br><br>
+            <button onclick="openNewsCreator()" style="background: #4f46e5;">Створити Новину</button>
         </div>
 
         <div id="createTestForm" class="hidden" style="text-align: left; margin-top: 15px;">
-            <h3>Нове запитання</h3>
-            <label>Тип:</label>
-            <select id="newQType">
-                <option value="mandatory">Обовязковий (Блокує вхід)</option>
-                <option value="optional">Звичайний (В меню Тести)</option>
-            </select>
-            <input type="text" id="newQText" placeholder="Текст запитання...">
-            <p style="margin-bottom: 5px; font-weight: bold;">Фото (необов'язково):</p>
+            <h3>Створити тест</h3>
+            <label>Тип:</label><select id="newQType"><option value="mandatory">Обовязковий</option><option value="optional">Звичайний</option></select>
+            <input type="text" id="newQText" placeholder="Текст...">
             <input type="file" id="newQFile" accept="image/*">
             <p id="uploadStatus" style="font-size: 0.8em; color: blue;"></p>
             <input type="hidden" id="uploadedImageUrl">
-            <h4>Варіанти (Текст | Бали):</h4>
             <div id="answersContainer">
-                <input type="text" class="ans-text" placeholder="Відповідь 1">
-                <input type="number" class="ans-score" placeholder="Бали">
-                <br>
-                <input type="text" class="ans-text" placeholder="Відповідь 2">
-                <input type="number" class="ans-score" placeholder="Бали">
+                <input type="text" class="ans-text" placeholder="Відп 1"><input type="number" class="ans-score" placeholder="Бал">
+                <br><input type="text" class="ans-text" placeholder="Відп 2"><input type="number" class="ans-score" placeholder="Бал">
             </div>
-            <button onclick="addAnswerField()" style="background: grey; font-size: 0.8em;">+ Ще варіант</button>
+            <button onclick="addAnswerField()" style="background: grey;">+ Ще</button>
             <hr>
-            <button onclick="addToDraft()" style="background: orange; color: black; font-weight: bold;">Додати в список</button>
+            <button onclick="addToDraft()" style="background: orange;">Додати в список</button>
         </div>
-        
         <div id="draftContainer" style="margin-top: 20px; border-top: 2px solid #ccc; padding-top: 10px;">
-            <h3>Список питань:</h3>
-            <div id="draftList" style="text-align: left; margin-bottom: 15px;"><p style="color: grey;">Пусто...</p></div>
-            <button id="btnPublish" onclick="publishTest()" style="background: green; display: none;">ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ</button>
+            <h3>Список питань:</h3><div id="draftList"><p>Пусто...</p></div>
+            <button id="btnPublish" onclick="publishTest()" style="background: green; display: none;">ЗАВАНТАЖИТИ</button>
         </div>
-        <br>
-        <button onclick="showSection('main')">Назад</button>
+        <br><button onclick="showSection('main')">Назад</button>
+    </div>
+
+    <div id="createNewsSection" class="container hidden" style="max-width: 700px; text-align: left;">
+        <h2>Створення Новини</h2>
+        
+        <label>Хто бачить:</label>
+        <select id="newsTargetType" onchange="toggleNewsTargetInput()">
+            <option value="all">Всі</option>
+            <option value="team">Конкретна партія</option>
+            <option value="users">Конкретні люди</option>
+        </select>
+        <input type="text" id="newsTargetValue" placeholder="Назва партії або нікнейми через кому" style="display: none;">
+
+        <label>Заголовок (Головний):</label>
+        <input type="text" id="newsTitle" placeholder="Гучна назва...">
+        
+        <label>Підзаголовок:</label>
+        <input type="text" id="newsSubtitle" placeholder="Короткий опис...">
+
+        <label>Обкладинка (Перше фото в списку):</label>
+        <input type="file" id="newsCoverFile" accept="image/*">
+        <input type="hidden" id="newsCoverUrl">
+        <p id="newsCoverStatus" style="font-size: 0.8em; color: blue;"></p>
+
+        <hr>
+        <h3>Контент (Текст + Фото)</h3>
+        <div id="newsContentBuilder" style="border: 1px dashed #ccc; padding: 10px; min-height: 100px; margin-bottom: 10px;">
+            <p style="color:grey; text-align:center;">Додайте блоки...</p>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button onclick="addNewsTextBlock()" style="background: #eee; color: black;">Текст</button>
+            <button onclick="addNewsImageBlock()" style="background: #eee; color: black;">Фото</button>
+        </div>
+
+        <br><hr><br>
+        <button onclick="publishNews()" style="background: green;">Опублікувати Новину</button>
+        <br><br>
+        <button onclick="showSection('admin')" style="background: grey;">Скасувати</button>
     </div>
 
     <div id="userListSection" class="container hidden" style="max-width: 600px;">
-        <h2>Керування гос</h2>
-        <div id="allUsersContainer" style="text-align: left;">
-            <p>Завантаження...</p>
-        </div>
-        <br>
-        <button onclick="showSection('admin')">Назад в А</button>
+        <h2>Керування гостями</h2>
+        <div id="allUsersContainer" style="text-align: left;"><p>Завантаження...</p></div>
+        <br><button onclick="showSection('admin')">Назад</button>
     </div>
 
     <div id="testPlayerSection" class="container hidden" style="max-width: 500px;">
@@ -166,6 +178,15 @@
         <div id="testAnswers" class="menu-grid"></div>
         <p style="font-size: 0.8em; color: grey; margin-top: 10px;">Питання <span id="qCurrent">0</span> з <span id="qTotal">0</span></p>
     </div>
+
+    <div id="supportSection" class="container hidden">
+        <h2>Підтримка</h2>
+        <textarea id="supportMessage" placeholder="Ідея..." rows="5"></textarea>
+        <button id="btnSupport" onclick="sendFeedback()">Відправити</button>
+        <div id="supportStatus" class="status-msg"></div><br><br><button onclick="showSection('main')">Назад</button>
+    </div>
+    
+    <div id="testsSection" class="container hidden"><h2>Доступні Тести</h2><div id="testsListContainer" class="menu-grid" style="grid-template-columns: 1fr;"><p>...</p></div><br><button onclick="showSection('main')">Назад</button></div>
 
     <script src="script.js"></script>
 </body>
