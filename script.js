@@ -111,7 +111,7 @@ function performLogin() {
                 completed_ids: u.completed_ids,
                 avatar: u.avatar,        
                 description: u.description,
-                rankThresholds: u.rankThresholds 
+                rankThresholds: u.rankThresholds
             };
             currentUser = userData;
             rankThresholds = u.rankThresholds;
@@ -156,10 +156,12 @@ function loginSuccess(u) {
     
     const rankCont = document.getElementById('rankContainer');
     if (u.team === "ВСТД") {
-        rankCont.style.display = "block";
-        document.getElementById('profileRank').innerText = calculateRankName(parseInt(u.score));
+        if(rankCont) {
+            rankCont.style.display = "block";
+            document.getElementById('profileRank').innerText = calculateRankName(parseInt(u.score));
+        }
     } else {
-        rankCont.style.display = "none";
+        if(rankCont) rankCont.style.display = "none";
     }
     
     const teamStatusText = document.getElementById('teamStatusText');
@@ -185,7 +187,6 @@ function loginSuccess(u) {
         showSection('main');
     }
 }
-
 
 function calculateRankName(score) {
     if (!rankThresholds) return "1 Учень";
@@ -707,21 +708,32 @@ function renderQuestion() {
     document.getElementById('testQuestionText').innerText = q.text;
     const img = document.getElementById('testImage');
     if (q.image) { img.src = q.image; img.style.display = 'block'; } else { img.style.display = 'none'; }
+    
     const ansDiv = document.getElementById('testAnswers');
     ansDiv.innerHTML = '';
+    
     q.answers.forEach(ans => {
         const btn = document.createElement('button');
         btn.className = 'btn';
         btn.innerText = ans.text;
+        
         btn.onclick = function() { submitAnswer(ans.score); };
         ansDiv.appendChild(btn);
     });
 }
 
 function submitAnswer(score) {
-    currentTestScore += score;
+    
+    currentTestScore += parseInt(score) || 0;
+    
     currentQuestionIndex++;
-    if (currentQuestionIndex < activeTestQuestions.length) { renderQuestion(); } else { finishTest(); }
+    if (currentQuestionIndex < activeTestQuestions.length) { 
+        renderQuestion(); 
+    } else { 
+        
+        document.getElementById('testAnswers').innerHTML = '<h3 style="color: blue;">Обробка результатів...</h3>';
+        finishTest(); 
+    }
 }
 
 function finishTest() {
