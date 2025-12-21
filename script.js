@@ -35,6 +35,7 @@ window.onclick = function(event) {
     }
 }
 
+
 function performRegister() {
     const user = document.getElementById('regUser').value;
     const pass = document.getElementById('regPass').value;
@@ -125,6 +126,10 @@ function loginSuccess(userObj) {
     document.getElementById('cornerUsername').innerText = userObj.username;
     document.getElementById('profileName').innerText = userObj.username;
     
+  
+    const headerName = document.getElementById('profileNameHeader');
+    if(headerName) headerName.innerText = userObj.username;
+    
     const firstLetter = userObj.username.charAt(0);
     const avatarEl = document.getElementById('avatarCircle');
     if(avatarEl) avatarEl.innerText = firstLetter;
@@ -166,7 +171,6 @@ function handleLogout() {
 
 
 function showSection(sectionName) {
-   
     const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer', 'tests'];
     
     sections.forEach(s => {
@@ -174,7 +178,7 @@ function showSection(sectionName) {
         if(el) el.classList.add('hidden');
     });
     
-    
+   
     if (sectionName === 'tests') {
         loadOptionalTests();
     }
@@ -250,7 +254,7 @@ function addToDraft() {
         const file = fileInput.files[0];
         const reader = new FileReader();
         
-        statusText.innerText = " Завантаження фото...";
+        statusText.innerText = "Завантаження фото...";
         
         reader.onload = function(e) {
             const rawData = e.target.result.split(',')[1];
@@ -267,10 +271,10 @@ function addToDraft() {
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    statusText.innerText = " Фото ок!";
+                    statusText.innerText = "Фото ок!";
                     pushQuestionToArray(data.imageUrl);
                 } else {
-                    statusText.innerText = " Помилка фото.";
+                    statusText.innerText = "Помилка фото.";
                     alert("Помилка: " + data.message);
                 }
             });
@@ -364,7 +368,7 @@ function publishTest() {
 
     const btn = document.getElementById('btnPublish');
     btn.disabled = true;
-    btn.innerText = "⏳ Відправка...";
+    btn.innerText = "Відправка...";
 
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
@@ -407,14 +411,13 @@ function loadOptionalTests() {
     .then(data => {
         container.innerHTML = "";
         
-       
+     
         const completed = currentUser.completed_ids ? String(currentUser.completed_ids).split(',') : [];
         
-       
         const available = data.data.filter(q => !completed.includes(String(q.id)));
         
         if (available.length === 0) {
-            container.innerHTML = "<p>Всі тести пройдено! Чекайте нових.</p>";
+            container.innerHTML = "<p>🎉 Всі тести пройдено! Чекайте нових.</p>";
             return;
         }
         
@@ -429,9 +432,8 @@ function loadOptionalTests() {
     });
 }
 
-
 function startSingleTest(questionObj) {
-    activeTestQuestions = [questionObj]; 
+    activeTestQuestions = [questionObj];
     currentQuestionIndex = 0;
     currentTestScore = 0;
     isTakingMandatory = false;
@@ -509,7 +511,7 @@ function finishTest() {
     document.getElementById('testAnswers').innerHTML = "<p>Обробка результатів...</p>";
     document.getElementById('testImage').style.display = 'none';
     
-    
+   
     let passedIds = activeTestQuestions.map(q => q.id);
 
     fetch(GOOGLE_SCRIPT_URL, {
@@ -527,10 +529,10 @@ function finishTest() {
         let msg = "Ваш результат: " + (currentTestScore > 0 ? "+" : "") + currentTestScore + " балів!";
         alert(msg);
         
-        
+     
         currentUser.score = data.newScore;
         
-        
+    
         if (data.combinedIds) {
             currentUser.completed_ids = data.combinedIds;
         }
@@ -540,7 +542,7 @@ function finishTest() {
         
         document.getElementById('profileCorner').style.display = 'flex';
         
-       
+
         if (!isTakingMandatory) {
             showSection('tests');
         } else {
