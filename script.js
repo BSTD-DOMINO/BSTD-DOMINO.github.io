@@ -6,6 +6,7 @@ let currentQuestionIndex = 0;
 let currentTestScore = 0;
 let isTakingMandatory = false;
 let draftQuestions = [];
+let newsBlocks = []; 
 
 console.log("Script Loaded Correctly ✅");
 
@@ -104,7 +105,7 @@ function performLogin() {
                 test_passed: data.data.test_passed,
                 role: data.data.role,
                 completed_ids: data.data.completed_ids,
-                avatar: data.data.avatar,       
+                avatar: data.data.avatar,        
                 description: data.data.description 
             };
             currentUser = userData;
@@ -126,11 +127,10 @@ function loginSuccess(userObj) {
     document.getElementById('cornerUsername').innerText = userObj.username;
     document.getElementById('profileName').innerText = userObj.username;
     
-
     const headerName = document.getElementById('profileNameHeader');
     if(headerName) headerName.innerText = userObj.username;
     
-
+   
     const bigAvatar = document.getElementById('profileAvatarBig');
     if (userObj.avatar && userObj.avatar.startsWith('http')) {
         bigAvatar.src = userObj.avatar;
@@ -138,11 +138,10 @@ function loginSuccess(userObj) {
         bigAvatar.src = "https://via.placeholder.com/150";
     }
 
-   
+  
     const descEl = document.getElementById('profileDescription');
     if(descEl) descEl.innerText = userObj.description || "(Немає опису)";
 
-   
     const firstLetter = userObj.username.charAt(0);
     const avatarEl = document.getElementById('avatarCircle');
     if(avatarEl) avatarEl.innerText = firstLetter;
@@ -184,8 +183,7 @@ function handleLogout() {
 
 
 function showSection(sectionName) {
-  
-    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer', 'tests', 'userList'];
+    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer', 'tests', 'userList', 'createNews', 'newsReader'];
     
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
@@ -194,6 +192,9 @@ function showSection(sectionName) {
     
     if (sectionName === 'tests') {
         loadOptionalTests();
+    }
+    if (sectionName === 'news') {
+        loadNewsFeed();
     }
 
     const target = document.getElementById(sectionName + 'Section');
@@ -205,24 +206,11 @@ function showSection(sectionName) {
 
 function sendFeedback() {
     const text = document.getElementById('supportMessage').value;
-    const statusDiv = document.getElementById('supportStatus');
     const btn = document.getElementById('btnSupport');
 
-    if (!text.trim()) {
-        statusDiv.innerText = "Напишіть хоч щось!";
-        statusDiv.style.color = "red";
-        return;
-    }
-    if (!currentUser) {
-        statusDiv.innerText = "Спочатку увійдіть в акаунт!";
-        statusDiv.style.color = "red";
-        return;
-    }
-
+    if (!text.trim()) { alert("Напишіть щось!"); return; }
+    
     btn.disabled = true;
-    statusDiv.innerText = "Відправляємо...";
-    statusDiv.style.color = "blue";
-
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify({ action: "feedback", username: currentUser.username, message: text })
@@ -230,19 +218,190 @@ function sendFeedback() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        if(data.status === "success") {
-            statusDiv.innerText = "Відправлено! Дяк.";
-            statusDiv.style.color = "green";
-            document.getElementById('supportMessage').value = "";
-        } else {
-            statusDiv.innerText = "Помилка: " + data.message;
-            statusDiv.style.color = "red";
+        alert("Відправлено!");
+        document.getElementById('supportMessage').value = "";
+    });
+}
+
+
+
+function openNewsCreator() {
+    showSection('createNews');
+    newsBlocks = [];
+    document.getElementById('newsContentBuilder').innerHTML = '<p style="color:grey; text-align:center;">Додайте блоки тексту або фото</p>';
+    document.getElementById('newsTitle').value = "";
+    document.getElementById('newsSubtitle').value = "";
+    document.getElementById('newsTargetValue').value = "";
+    document.getElementById('newsCoverFile').value = "";
+    document.getElementById('newsCoverStatus').innerText = "";
+}
+
+function toggleNewsTargetInput() {
+    const type = document.getElementById('newsTargetType').value;
+    const input = document.getElementById('newsTargetValue');
+    if (type === 'all') input.style.display = 'none';
+    else input.style.display = 'block';
+}
+
+function addNewsTextBlock() {
+    const container = document.getElementById('newsContentBuilder');
+    if(newsBlocks.length === 0) container.innerHTML = "";
+    
+    const id = Date.now();
+    const div = document.createElement('div');
+    div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; position: relative;";
+    div.innerHTML = `
+        <span style="font-weight:bold; font-size:0.8em; color:grey;">ТЕКСТ</span>
+        <textarea id="block_text_${id}" style="width:100%; height:80px; margin-top:5px;" placeholder="Пишіть тут..."></textarea>
+        <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 5px; background:red; font-size:0.7em;">X</button>
+    `;
+    container.appendChild(div);
+}
+
+function addNewsImageBlock() {
+    const container = document.getElementById('newsContentBuilder');
+    if(newsBlocks.length === 0) container.innerHTML = "";
+    
+    const id = Date.now();
+    const div = document.createElement('div');
+    div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #eef; position: relative;";
+    div.innerHTML = `
+        <span style="font-weight:bold; font-size:0.8em; color:grey;">📷 ФОТО</span>
+        <input type="file" id="block_file_${id}" accept="image/*" style="margin-top:5px;">
+        <p id="status_${id}" style="font-size:0.8em; color:blue;"></p>
+        <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 5px; background:red; font-size:0.7em;">X</button>
+    `;
+    container.appendChild(div);
+}
+
+async function publishNews() {
+    const title = document.getElementById('newsTitle').value;
+    const subtitle = document.getElementById('newsSubtitle').value;
+    const targetType = document.getElementById('newsTargetType').value;
+    const targetValue = document.getElementById('newsTargetValue').value;
+    const coverFile = document.getElementById('newsCoverFile').files[0];
+    
+    if (!title) { alert("Введіть заголовок!"); return; }
+    
+    const container = document.getElementById('newsContentBuilder');
+    const children = container.children;
+    let contentData = [];
+    
+    const uploadFile = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawData = e.target.result.split(',')[1];
+                fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "uploadImage", fileName: file.name, mimeType: file.type, fileData: rawData }) })
+                .then(res => res.json())
+                .then(data => { if(data.status==='success') resolve(data.imageUrl); else reject("Error"); })
+                .catch(err => reject(err));
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    alert("Публікація... Це може зайняти час.");
+
+    let coverUrl = "https://via.placeholder.com/300x150?text=News";
+    if (coverFile) {
+        try {
+            document.getElementById('newsCoverStatus').innerText = "Вантажу обкладинку...";
+            coverUrl = await uploadFile(coverFile);
+        } catch(e) { alert("Помилка обкладинки"); return; }
+    }
+
+    for (let div of children) {
+        if (div.querySelector('textarea')) {
+            const text = div.querySelector('textarea').value;
+            contentData.push({ type: 'text', value: text });
+        } else if (div.querySelector('input[type="file"]')) {
+            const fileInput = div.querySelector('input[type="file"]');
+            if (fileInput.files.length > 0) {
+                try {
+                    div.querySelector('p').innerText = "Вантажу...";
+                    const url = await uploadFile(fileInput.files[0]);
+                    contentData.push({ type: 'image', value: url });
+                    div.querySelector('p').innerText = "Ок";
+                } catch(e) { alert("Помилка фото в блоці"); return; }
+            }
         }
+    }
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "addNews",
+            title: title,
+            subtitle: subtitle,
+            coverImage: coverUrl,
+            content: contentData,
+            targetType: targetType,
+            targetValue: targetValue
+        })
     })
-    .catch(err => {
-        btn.disabled = false;
-        statusDiv.innerText = "Помилка з'єднання.";
-        console.error(err);
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        showSection('news');
+    });
+}
+
+
+
+function loadNewsFeed() {
+    const container = document.getElementById('newsFeedContainer');
+    container.innerHTML = "<p>Оновлення стрічки...</p>";
+    
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "getNews", username: currentUser.username })
+    })
+    .then(res => res.json())
+    .then(data => {
+        container.innerHTML = "";
+        if (data.news.length === 0) { container.innerHTML = "<p>Новин немає.</p>"; return; }
+        
+        data.news.forEach(n => {
+            const div = document.createElement('div');
+            div.className = "news-card";
+            div.style = "background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; cursor: pointer;";
+            div.onclick = function() { openNewsReader(n); };
+            
+            div.innerHTML = `
+                <img src="${n.coverImage}" style="width: 100%; height: 180px; object-fit: cover;">
+                <div style="padding: 15px;">
+                    <h3 style="margin: 0 0 5px 0;">${n.title}</h3>
+                    <p style="color: grey; font-size: 0.9em; margin: 0;">${n.subtitle || ""}</p>
+                    <span style="font-size: 0.7em; color: #aaa;">${n.date}</span>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    });
+}
+
+function openNewsReader(newsItem) {
+    showSection('newsReader');
+    document.getElementById('readerTitle').innerText = newsItem.title;
+    document.getElementById('readerSubtitle').innerText = newsItem.subtitle || "";
+    document.getElementById('readerDate').innerText = newsItem.date;
+    
+    const contentDiv = document.getElementById('readerContent');
+    contentDiv.innerHTML = "";
+    
+    newsItem.content.forEach(block => {
+        if (block.type === 'text') {
+            const p = document.createElement('p');
+            p.innerText = block.value;
+            p.style = "margin-bottom: 15px; white-space: pre-wrap;";
+            contentDiv.appendChild(p);
+        } else if (block.type === 'image') {
+            const img = document.createElement('img');
+            img.src = block.value;
+            img.style = "width: 100%; border-radius: 8px; margin-bottom: 15px;";
+            contentDiv.appendChild(img);
+        }
     });
 }
 
@@ -278,16 +437,12 @@ function loadUserManagement() {
                     </div>
                 </div>
                 <hr style="margin:10px 0;">
-                
                 <label>Партія:</label>
                 <input type="text" id="team_${u.username}" value="${u.team}" style="margin-bottom:5px;">
-                
                 <label>Опис:</label>
                 <textarea id="desc_${u.username}" rows="2" style="margin-bottom:5px;">${u.description}</textarea>
-                
                 <label>Нова аватарка (з ПК):</label>
                 <input type="file" id="file_${u.username}" accept="image/*">
-                
                 <button onclick="saveUserChanges('${u.username}')" style="background: #4f46e5; margin-top:10px;">Зберегти зміни</button>
             `;
             container.appendChild(div);
@@ -312,34 +467,23 @@ function saveUserChanges(username) {
             })
         })
         .then(res => res.json())
-        .then(data => {
-            alert(data.message);
-        });
+        .then(data => { alert(data.message); });
     };
 
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
         const reader = new FileReader();
         alert("Вантажимо фото... Зачекайте!");
-        
         reader.onload = function(e) {
             const rawData = e.target.result.split(',')[1];
             fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
-                body: JSON.stringify({
-                    action: "uploadImage",
-                    fileName: file.name,
-                    mimeType: file.type,
-                    fileData: rawData
-                })
+                body: JSON.stringify({ action: "uploadImage", fileName: file.name, mimeType: file.type, fileData: rawData })
             })
             .then(res => res.json())
             .then(data => {
-                if(data.status === "success") {
-                    sendUpdate(data.imageUrl); 
-                } else {
-                    alert("Помилка фото: " + data.message);
-                }
+                if(data.status === "success") { sendUpdate(data.imageUrl); } 
+                else { alert("Помилка фото: " + data.message); }
             });
         };
         reader.readAsDataURL(file);
@@ -352,125 +496,58 @@ function saveUserChanges(username) {
 
 function addAnswerField() {
     const container = document.getElementById('answersContainer');
-    container.innerHTML += `
-        <br>
-        <input type="text" class="ans-text" placeholder="Відповідь">
-        <input type="number" class="ans-score" placeholder="Бали">
-    `;
+    container.innerHTML += `<br><input type="text" class="ans-text" placeholder="Відповідь"><input type="number" class="ans-score" placeholder="Бали">`;
 }
 
 function addToDraft() {
-    console.log("Button Clicked: addToDraft"); 
-
     const fileInput = document.getElementById('newQFile');
-    const statusText = document.getElementById('uploadStatus');
-
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
         const reader = new FileReader();
-        
-        statusText.innerText = "Завантаження фото...";
-        
+        document.getElementById('uploadStatus').innerText = "Вантажу...";
         reader.onload = function(e) {
             const rawData = e.target.result.split(',')[1];
-            
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "uploadImage",
-                    fileName: file.name,
-                    mimeType: file.type,
-                    fileData: rawData
-                })
-            })
+            fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "uploadImage", fileName: file.name, mimeType: file.type, fileData: rawData }) })
             .then(res => res.json())
             .then(data => {
-                if (data.status === "success") {
-                    statusText.innerText = "Фото ок!";
-                    pushQuestionToArray(data.imageUrl);
-                } else {
-                    statusText.innerText = "Помилка фото.";
-                    alert("Помилка: " + data.message);
-                }
+                document.getElementById('uploadStatus').innerText = "Ок";
+                pushQuestionToArray(data.imageUrl);
             });
         };
-        reader.readAsDataURL(file); 
-    } else {
-        pushQuestionToArray(""); 
-    }
+        reader.readAsDataURL(file);
+    } else { pushQuestionToArray(""); }
 }
 
 function pushQuestionToArray(imgUrl) {
     const type = document.getElementById('newQType').value;
     const text = document.getElementById('newQText').value;
-    
     const ansTexts = document.querySelectorAll('.ans-text');
     const ansScores = document.querySelectorAll('.ans-score');
     let answers = [];
-    
     for(let i=0; i<ansTexts.length; i++) {
         if(ansTexts[i].value) {
-            answers.push({
-                text: ansTexts[i].value,
-                score: parseInt(ansScores[i].value) || 0
-            });
+            answers.push({ text: ansTexts[i].value, score: parseInt(ansScores[i].value) || 0 });
         }
     }
-
-    if (!text || answers.length < 1) {
-        alert("Заповніть текст і варіанти!");
-        return;
-    }
-
-    const questionObj = {
-        type: type,
-        question: text,
-        image: imgUrl,
-        answers: answers
-    };
-
-    draftQuestions.push(questionObj);
+    if (!text || answers.length < 1) { alert("Заповніть текст і варіанти!"); return; }
+    draftQuestions.push({ type, question: text, image: imgUrl, answers });
     renderDraftList();
-    
     document.getElementById('newQText').value = '';
     document.getElementById('newQFile').value = '';
-    document.getElementById('uploadStatus').innerText = '';
-    
-    document.getElementById('answersContainer').innerHTML = `
-        <input type="text" class="ans-text" placeholder="Відповідь 1">
-        <input type="number" class="ans-score" placeholder="Бали">
-        <br>
-        <input type="text" class="ans-text" placeholder="Відповідь 2">
-        <input type="number" class="ans-score" placeholder="Бали">
-    `;
+    document.getElementById('answersContainer').innerHTML = `<input type="text" class="ans-text" placeholder="Відповідь 1"><input type="number" class="ans-score" placeholder="Бали"><br><input type="text" class="ans-text" placeholder="Відповідь 2"><input type="number" class="ans-score" placeholder="Бали">`;
 }
 
 function renderDraftList() {
     const listDiv = document.getElementById('draftList');
-    const btnPublish = document.getElementById('btnPublish');
-    
-    if (draftQuestions.length === 0) {
-        listDiv.innerHTML = '<p style="color: grey;">Поки що пусто...</p>';
-        btnPublish.style.display = 'none';
-        return;
-    }
-
+    const btn = document.getElementById('btnPublish');
+    if (draftQuestions.length === 0) { listDiv.innerHTML = '<p style="color: grey;">Пусто...</p>'; btn.style.display = 'none'; return; }
     let html = '';
-    draftQuestions.forEach((q, index) => {
-        html += `
-            <div style="background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <strong>${index + 1}.</strong> ${q.question} 
-                    <span style="font-size: 0.8em; color: grey;">(${q.type})</span>
-                </div>
-                <button onclick="removeDraft(${index})" style="background: red; color: white; padding: 5px 10px; font-size: 12px; width: auto; cursor: pointer;">🗑️</button>
-            </div>
-        `;
+    draftQuestions.forEach((q, i) => {
+        html += `<div><strong>${i + 1}.</strong> ${q.question} <button onclick="removeDraft(${i})" style="background: red; color: white;">🗑️</button></div>`;
     });
-    
     listDiv.innerHTML = html;
-    btnPublish.style.display = 'block';
-    btnPublish.innerText = `ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ (${draftQuestions.length})`;
+    btn.style.display = 'block';
+    btn.innerText = `ЗАВАНТАЖИТИ (${draftQuestions.length})`;
 }
 
 function removeDraft(index) {
@@ -480,35 +557,16 @@ function removeDraft(index) {
 
 function publishTest() {
     if (draftQuestions.length === 0) return;
-
     const btn = document.getElementById('btnPublish');
     btn.disabled = true;
     btn.innerText = "Відправка...";
-
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-            action: "addQuestionBatch",
-            questions: draftQuestions
-        })
-    })
+    fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "addQuestionBatch", questions: draftQuestions }) })
     .then(res => res.json())
     .then(data => {
-        if (data.status === "success") {
-            alert(data.message);
-            draftQuestions = [];
-            renderDraftList();
-        } else {
-            alert("Помилка: " + data.message);
-        }
+        alert(data.message);
+        draftQuestions = [];
+        renderDraftList();
         btn.disabled = false;
-        btn.innerText = "ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Помилка з'єднання");
-        btn.disabled = false;
-        btn.innerText = "ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ";
     });
 }
 
@@ -516,91 +574,48 @@ function publishTest() {
 
 function loadOptionalTests() {
     const container = document.getElementById('testsListContainer');
-    container.innerHTML = "<p>Оновлення списку...</p>";
-    
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "getTests", type: "optional" })
-    })
+    container.innerHTML = "<p>Оновлення...</p>";
+    fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getTests", type: "optional" }) })
     .then(res => res.json())
     .then(data => {
         container.innerHTML = "";
-        
-     
         const completed = currentUser.completed_ids ? String(currentUser.completed_ids).split(',') : [];
-        
         const available = data.data.filter(q => !completed.includes(String(q.id)));
-        
-        if (available.length === 0) {
-            container.innerHTML = "<p>Всі тести пройдено! Чекайте нових.</p>";
-            return;
-        }
-        
+        if (available.length === 0) { container.innerHTML = "<p>Всі тести пройдено!</p>"; return; }
         available.forEach(q => {
             const btn = document.createElement('button');
             btn.className = 'btn';
             btn.innerHTML = `📝 ${q.text}`;
-            btn.style.textAlign = "left";
             btn.onclick = function() { startSingleTest(q); };
             container.appendChild(btn);
         });
     });
 }
 
-function startSingleTest(questionObj) {
-    activeTestQuestions = [questionObj]; 
-    currentQuestionIndex = 0;
-    currentTestScore = 0;
-    isTakingMandatory = false;
-    
-    renderQuestion(); 
+function startSingleTest(q) {
+    activeTestQuestions = [q]; currentQuestionIndex = 0; currentTestScore = 0; isTakingMandatory = false; renderQuestion();
 }
-
-
 
 function startMandatoryTest() {
     document.getElementById('profileCorner').style.display = 'none';
-    
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "getTests", type: "mandatory" })
-    })
+    fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getTests", type: "mandatory" }) })
     .then(res => res.json())
     .then(data => {
-        if (data.data.length === 0) {
-            showSection('main');
-            document.getElementById('profileCorner').style.display = 'flex';
-            return;
-        }
-        
-        activeTestQuestions = data.data;
-        currentQuestionIndex = 0;
-        currentTestScore = 0;
-        isTakingMandatory = true;
-        
-        renderQuestion();
+        if (data.data.length === 0) { showSection('main'); document.getElementById('profileCorner').style.display = 'flex'; return; }
+        activeTestQuestions = data.data; currentQuestionIndex = 0; currentTestScore = 0; isTakingMandatory = true; renderQuestion();
     });
 }
 
 function renderQuestion() {
     showSection('testPlayer');
     const q = activeTestQuestions[currentQuestionIndex];
-    
     document.getElementById('testQuestionText').innerText = q.text;
     document.getElementById('qCurrent').innerText = currentQuestionIndex + 1;
     document.getElementById('qTotal').innerText = activeTestQuestions.length;
-
-    const imgEl = document.getElementById('testImage');
-    if (q.image) {
-        imgEl.src = q.image;
-        imgEl.style.display = 'block';
-    } else {
-        imgEl.style.display = 'none';
-    }
-
+    const img = document.getElementById('testImage');
+    if (q.image) { img.src = q.image; img.style.display = 'block'; } else { img.style.display = 'none'; }
     const ansDiv = document.getElementById('testAnswers');
     ansDiv.innerHTML = '';
-    
     q.answers.forEach(ans => {
         const btn = document.createElement('button');
         btn.className = 'btn';
@@ -613,55 +628,23 @@ function renderQuestion() {
 function submitAnswer(score) {
     currentTestScore += score;
     currentQuestionIndex++;
-    
-    if (currentQuestionIndex < activeTestQuestions.length) {
-        renderQuestion();
-    } else {
-        finishTest();
-    }
+    if (currentQuestionIndex < activeTestQuestions.length) { renderQuestion(); } else { finishTest(); }
 }
 
 function finishTest() {
-    document.getElementById('testQuestionText').innerText = "Тест завершено!";
-    document.getElementById('testAnswers').innerHTML = "<p>Обробка результатів...</p>";
-    document.getElementById('testImage').style.display = 'none';
-    
-   
-    let passedIds = activeTestQuestions.map(q => q.id);
-
+    let ids = activeTestQuestions.map(q => q.id);
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({
-            action: "submitTestResult",
-            username: currentUser.username,
-            points: currentTestScore,
-            isMandatory: isTakingMandatory,
-            passedIds: passedIds
-        })
+        body: JSON.stringify({ action: "submitTestResult", username: currentUser.username, points: currentTestScore, isMandatory: isTakingMandatory, passedIds: ids })
     })
     .then(res => res.json())
     .then(data => {
-        let msg = "Ваш результат: " + (currentTestScore > 0 ? "+" : "") + currentTestScore + " балів!";
-        alert(msg);
-        
-    
+        alert("Результат: " + currentTestScore);
         currentUser.score = data.newScore;
-        
-      
-        if (data.combinedIds) {
-            currentUser.completed_ids = data.combinedIds;
-        }
-        
+        if (data.combinedIds) currentUser.completed_ids = data.combinedIds;
         if(isTakingMandatory) currentUser.test_passed = "true";
         localStorage.setItem('userData', JSON.stringify(currentUser));
-        
         document.getElementById('profileCorner').style.display = 'flex';
-        
-    
-        if (!isTakingMandatory) {
-            showSection('tests');
-        } else {
-            showSection('main');
-        }
+        showSection(isTakingMandatory ? 'main' : 'tests');
     });
 }
