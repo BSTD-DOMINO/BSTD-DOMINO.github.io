@@ -18,7 +18,7 @@
             <a onclick="showSection('main')">Головна</a>
             <a onclick="showSection('profile')">Профіль</a>
             <a onclick="showSection('news')">Новини</a>
-            <a onclick="showSection('team')">Партія</a>
+            <a onclick="openTeamPage()">Партія</a>
             <a onclick="showSection('tests')">Тести</a> 
             <a onclick="showSection('support')">Підтримка</a>
             <a id="adminBtn" onclick="showSection('admin')" style="display: none; color: red; font-weight: bold;">АА</a>
@@ -50,7 +50,7 @@
         <div class="menu-grid">
             <button class="btn" onclick="showSection('news')">Новини</button>
             <button class="btn" onclick="showSection('profile')">Профіль</button>
-            <button class="btn" onclick="showSection('team')">Партія</button>
+            <button class="btn" onclick="openTeamPage()">Партія</button>
             <button class="btn" onclick="showSection('support')">Підтримка</button>
         </div>
     </div>
@@ -65,6 +65,12 @@
                 <p><strong>Ім'я:</strong> <span id="profileName">User</span></p>
                 <p><strong>Бали:</strong> <span id="profileScore">0</span></p>
                 <p><strong>Партія:</strong> <span id="profileTeam">Не розподілено</span></p>
+                
+                <div id="rankContainer" style="display:none; margin: 10px 0; padding: 10px; background: #eef2ff; border-radius: 8px; border-left: 4px solid #4f46e5;">
+                    <span style="color: #4f46e5; font-size: 0.9em; font-weight: bold;">Ідейно-виробничний розряд:</span><br>
+                    <span id="profileRank" style="font-size: 1.3em; font-weight: bold; color: #333;">1 Учень</span>
+                </div>
+
                 <p><strong>Статус:</strong> <span style="color:green; font-weight:bold;">У системі</span></p>
                 <div style="background: #f0f0f0; padding: 10px; border-radius: 8px; margin-top: 10px;">
                     <strong>Опис:</strong>
@@ -76,23 +82,41 @@
         <button onclick="showSection('main')" class="btn-back">На головну</button>
     </div>
 
+    <div id="teamSection" class="container hidden">
+        <h2>Партія</h2>
+        <p>Ваша партія: <strong id="teamNameGeneric">Немає</strong></p>
+        <br><button onclick="showSection('main')">Назад</button>
+    </div>
+
+    <div id="bstdSection" class="container hidden" style="background: #fdfdfd; border: 2px solid #4f46e5; max-width: 800px;">
+        <h3 style="color: #666; font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Ми не політична партія</h3>
+        <h1 style="color: #4f46e5; margin-top: 0; font-size: 1.8em;">Ми - Професійно-Ідейний Союз Вологих Інженерів Дрючка</h1>
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+        
+        <div id="bstdStats" style="background: #eef; padding: 15px; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: #333; margin-bottom: 20px;">
+            Завантаження статистики...
+        </div>
+
+        <img src="https://via.placeholder.com/800x300?text=BSTD+Union" style="width: 100%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        
+        <p style="font-style: italic;">"Праця, Ідея, Дрючок!"</p>
+        <br>
+        <button onclick="showSection('main')">На головну</button>
+    </div>
+
     <div id="newsSection" class="container hidden" style="max-width: 600px;">
         <h2>Новини</h2>
-        <div id="newsFeedContainer">
-            <p>Завантаження новин...</p>
-        </div>
-        <br>
-        <button onclick="showSection('main')">Назад</button>
+        <div id="newsFeedContainer"><p>Завантаження новин...</p></div>
+        <br><button onclick="showSection('main')">Назад</button>
     </div>
 
     <div id="newsReaderSection" class="container hidden" style="max-width: 700px; text-align: left;">
-        <button onclick="showSection('news')" style="width: auto; padding: 5px 15px; margin-bottom: 10px; font-size: 0.9em;">До списку</button>
+        <button onclick="showSection('news')" style="width: auto; padding: 5px 15px; margin-bottom: 10px;">До списку</button>
         <h1 id="readerTitle" style="margin-bottom: 5px;">Заголовок</h1>
-        <h3 id="readerSubtitle" style="color: grey; margin-top: 0;">Підзаголовок</h3>
-        <p style="font-size: 0.8em; color: #888;" id="readerDate">Дата</p>
+        <h3 id="readerSubtitle" style="color: grey; margin-top: 0;"></h3>
+        <p id="readerDate" style="color: #888; font-size: 0.8em;"></p>
         <hr>
-        <div id="readerContent" style="margin-top: 20px; line-height: 1.6;">
-            </div>
+        <div id="readerContent" style="margin-top: 20px;"></div>
     </div>
 
     <div id="adminSection" class="container hidden" style="border: 2px solid red;">
@@ -103,6 +127,24 @@
             <button onclick="loadUserManagement()" style="background: #333;">Всі Гості</button>
             <br><br>
             <button onclick="openNewsCreator()" style="background: #4f46e5;">Створити Новину</button>
+            <br><br>
+            <button onclick="openRankDistribution()" style="background: orange; color: black; font-weight: bold;">Розподіл</button>
+        </div>
+
+        <div id="rankSettings" class="hidden" style="margin-top: 20px; padding: 15px; border: 1px dashed orange; background: #fff8e1; text-align: left; border-radius: 8px;">
+            <h3 style="margin-top: 0;">Налаштування балів для розрядів ВСТД</h3>
+            <p style="font-size: 0.8em; color: #666;">Введіть поріг балів для отримання кожного рангу:</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 100px; gap: 10px; align-items: center;">
+                <label>1. Учень:</label> <input type="text" value="0" disabled style="background: #eee;">
+                <label>2. Робітник-Ідеолог:</label> <input type="number" id="r2_val">
+                <label>3. Майстер-Наставник:</label> <input type="number" id="r3_val">
+                <label>4. Інженер-Керівник:</label> <input type="number" id="r4_val">
+                <label>5. Начальник-Господар:</label> <input type="number" id="r5_val">
+                <label>6. Рада Сталі Дрючка:</label> <input type="number" id="r6_val">
+            </div>
+            <br>
+            <button onclick="saveRanks()" style="background: green;">Зберегти</button>
         </div>
 
         <div id="createTestForm" class="hidden" style="text-align: left; margin-top: 15px;">
@@ -111,82 +153,70 @@
             <input type="text" id="newQText" placeholder="Текст...">
             <input type="file" id="newQFile" accept="image/*">
             <p id="uploadStatus" style="font-size: 0.8em; color: blue;"></p>
-            <input type="hidden" id="uploadedImageUrl">
             <div id="answersContainer">
-                <input type="text" class="ans-text" placeholder="Відп 1"><input type="number" class="ans-score" placeholder="Бал">
-                <br><input type="text" class="ans-text" placeholder="Відп 2"><input type="number" class="ans-score" placeholder="Бал">
+                <input type="text" class="ans-text" placeholder="1"><input type="number" class="ans-score" placeholder="Бал">
             </div>
             <button onclick="addAnswerField()" style="background: grey;">+ Ще</button>
-            <hr>
-            <button onclick="addToDraft()" style="background: orange;">Додати в список</button>
+            <button onclick="addToDraft()" style="background: orange;">Додати</button>
         </div>
-        <div id="draftContainer" style="margin-top: 20px; border-top: 2px solid #ccc; padding-top: 10px;">
-            <h3>Список питань:</h3><div id="draftList"><p>Пусто...</p></div>
-            <button id="btnPublish" onclick="publishTest()" style="background: green; display: none;">ЗАВАНТАЖИТИ</button>
+        <div id="draftContainer" style="margin-top: 20px;">
+            <h3>Список:</h3><div id="draftList"></div><button id="btnPublish" onclick="publishTest()" style="display:none; background: green;">ПУБЛІКАЦІЯ</button>
         </div>
-        <br><button onclick="showSection('main')">Назад</button>
+        <br><button onclick="showSection('main')">⬅️ Назад</button>
     </div>
 
     <div id="createNewsSection" class="container hidden" style="max-width: 700px; text-align: left;">
-        <h2>Створення Новини</h2>
-        
-        <label>Хто бачить:</label>
+        <h2>Нова новина</h2>
         <select id="newsTargetType" onchange="toggleNewsTargetInput()">
             <option value="all">Всі</option>
-            <option value="team">Конкретна партія</option>
-            <option value="users">Конкретні люди</option>
+            <option value="team">Партія</option>
+            <option value="users">Люди</option>
         </select>
-        <input type="text" id="newsTargetValue" placeholder="Назва партії або нікнейми через кому" style="display: none;">
-
-        <label>Заголовок (Головний):</label>
-        <input type="text" id="newsTitle" placeholder="Гучна назва...">
+        <input type="text" id="newsTargetValue" style="display:none;" placeholder="Кому...">
+        <input type="text" id="newsTitle" placeholder="Заголовок">
+        <input type="text" id="newsSubtitle" placeholder="Підзаголовок">
         
-        <label>Підзаголовок:</label>
-        <input type="text" id="newsSubtitle" placeholder="Короткий опис...">
-
-        <label>Обкладинка (Перше фото в списку):</label>
+        <label>Обкладинка:</label>
         <input type="file" id="newsCoverFile" accept="image/*">
-        <input type="hidden" id="newsCoverUrl">
         <p id="newsCoverStatus" style="font-size: 0.8em; color: blue;"></p>
 
-        <hr>
-        <h3>Контент (Текст + Фото)</h3>
-        <div id="newsContentBuilder" style="border: 1px dashed #ccc; padding: 10px; min-height: 100px; margin-bottom: 10px;">
-            <p style="color:grey; text-align:center;">Додайте блоки...</p>
+        <div id="newsContentBuilder" style="border: 1px dashed #ccc; padding: 10px; min-height: 100px; margin: 10px 0;">
+            <p id="emptyMsg" style="color:grey; text-align:center;">Додайте блоки...</p>
         </div>
 
-        <div style="display: flex; gap: 10px;">
-            <button onclick="addNewsTextBlock()" style="background: #eee; color: black;">Текст</button>
-            <button onclick="addNewsImageBlock()" style="background: #eee; color: black;">Фото</button>
-        </div>
-
-        <br><hr><br>
-        <button onclick="publishNews()" style="background: green;">Опублікувати Новину</button>
+        <button onclick="addNewsTextBlock()">+ Текст</button>
+        <button onclick="addNewsImageBlock()">+ Фото</button>
+        <br><br>
+        <button onclick="publishNews()" style="background: green;">Публікувати</button>
         <br><br>
         <button onclick="showSection('admin')" style="background: grey;">Скасувати</button>
     </div>
 
-    <div id="userListSection" class="container hidden" style="max-width: 600px;">
-        <h2>Керування гостями</h2>
-        <div id="allUsersContainer" style="text-align: left;"><p>Завантаження...</p></div>
+    <div id="userListSection" class="container hidden">
+        <h2>Керування</h2>
+        <div id="allUsersContainer"></div>
         <br><button onclick="showSection('admin')">Назад</button>
     </div>
 
     <div id="testPlayerSection" class="container hidden" style="max-width: 500px;">
-        <img id="testImage" style="width: 100%; max-height: 250px; object-fit: contain; display: none; margin-bottom: 15px; border-radius: 8px;" referrerpolicy="no-referrer">
-        <h2 id="testQuestionText">Запитання...</h2>
+        <img id="testImage" style="width: 100%; max-height: 250px; object-fit: contain; display: none;">
+        <h2 id="testQuestionText"></h2>
         <div id="testAnswers" class="menu-grid"></div>
-        <p style="font-size: 0.8em; color: grey; margin-top: 10px;">Питання <span id="qCurrent">0</span> з <span id="qTotal">0</span></p>
+        <p id="qInfo" style="color: grey; font-size: 0.8em;"></p>
     </div>
 
     <div id="supportSection" class="container hidden">
         <h2>Підтримка</h2>
-        <textarea id="supportMessage" placeholder="Ідея..." rows="5"></textarea>
-        <button id="btnSupport" onclick="sendFeedback()">Відправити</button>
-        <div id="supportStatus" class="status-msg"></div><br><br><button onclick="showSection('main')">Назад</button>
+        <textarea id="supportMessage" placeholder="Ваша ідея..." rows="5"></textarea>
+        <button onclick="sendFeedback()">Надіслати</button>
+        <br><br><button onclick="showSection('main')">Назад</button>
     </div>
     
-    <div id="testsSection" class="container hidden"><h2>Доступні Тести</h2><div id="testsListContainer" class="menu-grid" style="grid-template-columns: 1fr;"><p>...</p></div><br><button onclick="showSection('main')">Назад</button></div>
+    <div id="testsSection" class="container hidden">
+        <h2>Тести</h2>
+        <div id="testsListContainer" class="menu-grid" style="grid-template-columns: 1fr;"></div>
+        <br><button onclick="showSection('main')">Назад</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
