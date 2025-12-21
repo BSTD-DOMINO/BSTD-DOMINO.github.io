@@ -6,7 +6,7 @@ let currentQuestionIndex = 0;
 let currentTestScore = 0;
 let isTakingMandatory = false;
 let draftQuestions = [];
-let newsBlocks = []; 
+let newsBlocks = [];
 
 console.log("Script Loaded Correctly ✅");
 
@@ -130,7 +130,6 @@ function loginSuccess(userObj) {
     const headerName = document.getElementById('profileNameHeader');
     if(headerName) headerName.innerText = userObj.username;
     
-   
     const bigAvatar = document.getElementById('profileAvatarBig');
     if (userObj.avatar && userObj.avatar.startsWith('http')) {
         bigAvatar.src = userObj.avatar;
@@ -138,7 +137,6 @@ function loginSuccess(userObj) {
         bigAvatar.src = "https://via.placeholder.com/150";
     }
 
-  
     const descEl = document.getElementById('profileDescription');
     if(descEl) descEl.innerText = userObj.description || "(Немає опису)";
 
@@ -251,7 +249,7 @@ function addNewsTextBlock() {
     const div = document.createElement('div');
     div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; position: relative;";
     div.innerHTML = `
-        <span style="font-weight:bold; font-size:0.8em; color:grey;">ТЕКСТ</span>
+        <span style="font-weight:bold; font-size:0.8em; color:grey;">📝 ТЕКСТ</span>
         <textarea id="block_text_${id}" style="width:100%; height:80px; margin-top:5px;" placeholder="Пишіть тут..."></textarea>
         <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 5px; background:red; font-size:0.7em;">X</button>
     `;
