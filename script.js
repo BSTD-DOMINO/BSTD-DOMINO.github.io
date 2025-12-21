@@ -5,8 +5,6 @@ let activeTestQuestions = [];
 let currentQuestionIndex = 0;
 let currentTestScore = 0;
 let isTakingMandatory = false;
-
-
 let draftQuestions = [];
 
 console.log("Script Loaded Correctly ✅");
@@ -105,7 +103,9 @@ function performLogin() {
                 team: data.data.team,
                 test_passed: data.data.test_passed,
                 role: data.data.role,
-                completed_ids: data.data.completed_ids
+                completed_ids: data.data.completed_ids,
+                avatar: data.data.avatar,       
+                description: data.data.description 
             };
             currentUser = userData;
             localStorage.setItem('userData', JSON.stringify(userData));
@@ -126,10 +126,23 @@ function loginSuccess(userObj) {
     document.getElementById('cornerUsername').innerText = userObj.username;
     document.getElementById('profileName').innerText = userObj.username;
     
-  
+
     const headerName = document.getElementById('profileNameHeader');
     if(headerName) headerName.innerText = userObj.username;
     
+
+    const bigAvatar = document.getElementById('profileAvatarBig');
+    if (userObj.avatar && userObj.avatar.startsWith('http')) {
+        bigAvatar.src = userObj.avatar;
+    } else {
+        bigAvatar.src = "https://via.placeholder.com/150";
+    }
+
+   
+    const descEl = document.getElementById('profileDescription');
+    if(descEl) descEl.innerText = userObj.description || "(Немає опису)";
+
+   
     const firstLetter = userObj.username.charAt(0);
     const avatarEl = document.getElementById('avatarCircle');
     if(avatarEl) avatarEl.innerText = firstLetter;
@@ -171,14 +184,14 @@ function handleLogout() {
 
 
 function showSection(sectionName) {
-    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer', 'tests'];
+  
+    const sections = ['login', 'register', 'main', 'profile', 'news', 'team', 'support', 'admin', 'testPlayer', 'tests', 'userList'];
     
     sections.forEach(s => {
         const el = document.getElementById(s + 'Section');
         if(el) el.classList.add('hidden');
     });
     
-   
     if (sectionName === 'tests') {
         loadOptionalTests();
     }
@@ -231,6 +244,108 @@ function sendFeedback() {
         statusDiv.innerText = "Помилка з'єднання.";
         console.error(err);
     });
+}
+
+
+
+function loadUserManagement() {
+    showSection('userList');
+    const container = document.getElementById('allUsersContainer');
+    container.innerHTML = "<p>Завантаження списку...</p>";
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "getAllUsers" })
+    })
+    .then(res => res.json())
+    .then(data => {
+        container.innerHTML = "";
+        if (data.users.length === 0) {
+            container.innerHTML = "Список порожній.";
+            return;
+        }
+
+        data.users.forEach(u => {
+            const div = document.createElement('div');
+            div.style = "background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd;";
+            
+            div.innerHTML = `
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <img src="${u.avatar || 'https://via.placeholder.com/50'}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;">
+                    <div>
+                        <strong style="font-size:1.2em;">${u.username}</strong>
+                        <span style="color:grey; font-size:0.8em;">(${u.role})</span>
+                    </div>
+                </div>
+                <hr style="margin:10px 0;">
+                
+                <label>Партія:</label>
+                <input type="text" id="team_${u.username}" value="${u.team}" style="margin-bottom:5px;">
+                
+                <label>Опис:</label>
+                <textarea id="desc_${u.username}" rows="2" style="margin-bottom:5px;">${u.description}</textarea>
+                
+                <label>Нова аватарка (з ПК):</label>
+                <input type="file" id="file_${u.username}" accept="image/*">
+                
+                <button onclick="saveUserChanges('${u.username}')" style="background: #4f46e5; margin-top:10px;">Зберегти зміни</button>
+            `;
+            container.appendChild(div);
+        });
+    });
+}
+
+function saveUserChanges(username) {
+    const newTeam = document.getElementById(`team_${username}`).value;
+    const newDesc = document.getElementById(`desc_${username}`).value;
+    const fileInput = document.getElementById(`file_${username}`);
+    
+    const sendUpdate = (avatarUrl) => {
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "updateUserProfile",
+                targetUser: username,
+                newTeam: newTeam,
+                newDesc: newDesc,
+                newAvatar: avatarUrl 
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+        });
+    };
+
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        alert("Вантажимо фото... Зачекайте!");
+        
+        reader.onload = function(e) {
+            const rawData = e.target.result.split(',')[1];
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "uploadImage",
+                    fileName: file.name,
+                    mimeType: file.type,
+                    fileData: rawData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    sendUpdate(data.imageUrl); 
+                } else {
+                    alert("Помилка фото: " + data.message);
+                }
+            });
+        };
+        reader.readAsDataURL(file);
+    } else {
+        sendUpdate(null);
+    }
 }
 
 
@@ -355,7 +470,7 @@ function renderDraftList() {
     
     listDiv.innerHTML = html;
     btnPublish.style.display = 'block';
-    btnPublish.innerText = `🚀 ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ (${draftQuestions.length})`;
+    btnPublish.innerText = `ЗАВАНТАЖИТИ ВЕСЬ ТЕСТ (${draftQuestions.length})`;
 }
 
 function removeDraft(index) {
@@ -417,7 +532,7 @@ function loadOptionalTests() {
         const available = data.data.filter(q => !completed.includes(String(q.id)));
         
         if (available.length === 0) {
-            container.innerHTML = "<p>🎉 Всі тести пройдено! Чекайте нових.</p>";
+            container.innerHTML = "<p>Всі тести пройдено! Чекайте нових.</p>";
             return;
         }
         
@@ -433,7 +548,7 @@ function loadOptionalTests() {
 }
 
 function startSingleTest(questionObj) {
-    activeTestQuestions = [questionObj];
+    activeTestQuestions = [questionObj]; 
     currentQuestionIndex = 0;
     currentTestScore = 0;
     isTakingMandatory = false;
@@ -521,7 +636,7 @@ function finishTest() {
             username: currentUser.username,
             points: currentTestScore,
             isMandatory: isTakingMandatory,
-            passedIds: passedIds 
+            passedIds: passedIds
         })
     })
     .then(res => res.json())
@@ -529,10 +644,10 @@ function finishTest() {
         let msg = "Ваш результат: " + (currentTestScore > 0 ? "+" : "") + currentTestScore + " балів!";
         alert(msg);
         
-     
+    
         currentUser.score = data.newScore;
         
-    
+      
         if (data.combinedIds) {
             currentUser.completed_ids = data.combinedIds;
         }
@@ -542,7 +657,7 @@ function finishTest() {
         
         document.getElementById('profileCorner').style.display = 'flex';
         
-
+    
         if (!isTakingMandatory) {
             showSection('tests');
         } else {
