@@ -11,7 +11,7 @@ let isTakingMandatory = false;
 let draftQuestions = [];
 let newsBlocks = [];
 
-console.log("Script Loaded Correctly v4.0 ✅");
+console.log("Script Loaded Correctly v5.0 (Informant) ✅");
 
 window.onload = function() {
     if (currentUser) {
@@ -167,11 +167,18 @@ function loginSuccess(u) {
     const teamStatusText = document.getElementById('teamStatusText');
     if(teamStatusText) teamStatusText.innerText = u.team;
     
+   
     const adminBtn = document.getElementById('adminBtn');
     if (u.role === 'admin') {
         adminBtn.style.display = 'block';
     } else {
         adminBtn.style.display = 'none';
+    }
+
+   
+    const adminPanel = document.getElementById('adminInformantPanel');
+    if (adminPanel) {
+        adminPanel.style.display = (u.role === 'admin') ? 'block' : 'none';
     }
 
     document.getElementById('profileCorner').style.display = 'flex';
@@ -222,12 +229,76 @@ function showSection(sectionName) {
     if (sectionName === 'news') {
         loadNewsFeed();
     }
+    
+    
+    if (sectionName === 'main') {
+        loadInformantMessage();
+    }
 
     const target = document.getElementById(sectionName + 'Section');
     if (target) target.classList.remove('hidden');
 
     const dropdown = document.getElementById("dropdownMenu");
     if (dropdown) dropdown.classList.remove('show');
+}
+
+
+function loadInformantMessage() {
+    const display = document.getElementById('informantDisplay');
+    if (!display) return;
+    display.innerHTML = "<em>Оновлення інформації...</em>";
+    
+    fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getInformantMessage" }) })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'success') {
+            display.innerText = d.message || "Наразі важливих оголошень немає.";
+        } else {
+            display.innerText = "Не вдалося завантажити оголошення.";
+        }
+    })
+    .catch(e => {
+        display.innerText = "Помилка з'єднання.";
+        console.error(e);
+    });
+}
+
+function saveInformantMessage() {
+    const text = document.getElementById('informantInput').value;
+    if (!text.trim()) { alert("Напишіть повідомлення!"); return; }
+    
+    if (!currentUser || currentUser.role !== 'admin') { alert("Тільки для адміністраторів!"); return; }
+
+    
+    const btn = document.querySelector('#adminInformantPanel button');
+    const originalText = btn.innerText;
+    btn.innerText = "Публікуємо...";
+    btn.disabled = true;
+
+    fetch(GOOGLE_SCRIPT_URL, { 
+        method: "POST", 
+        body: JSON.stringify({ 
+            action: "saveInformantMessage", 
+            message: text,
+            role: currentUser.role 
+        }) 
+    })
+    .then(r => r.json())
+    .then(d => {
+        alert(d.message);
+        if (d.status === 'success') {
+            document.getElementById('informantInput').value = ""; 
+            loadInformantMessage(); 
+        }
+    })
+    .catch(e => {
+        alert("Помилка публікації.");
+        console.error(e);
+    })
+    .finally(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    });
 }
 
 
@@ -339,7 +410,7 @@ function addNewsTextBlock() {
     const div = document.createElement('div');
     div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; position: relative; border-radius: 5px;";
     div.innerHTML = `
-        <span style="font-weight:bold; font-size:0.8em; color:grey;">📝 ТЕКСТ</span>
+        <span style="font-weight:bold; font-size:0.8em; color:grey;"> ТЕКСТ</span>
         <textarea class="news-text-input" style="width:100%; height:80px; margin-top:5px; border: 1px solid #ccc; border-radius: 4px; padding: 5px;" placeholder="Пишіть текст тут..."></textarea>
         <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 8px; background:red; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
     `;
@@ -413,13 +484,13 @@ async function publishNews() {
         if (fileInput) {
             if (fileInput.files.length > 0) {
                 try {
-                    div.querySelector('.status-text').innerText = "⏳ Вантажу...";
+                    div.querySelector('.status-text').innerText = " Вантажу...";
                     const url = await uploadFile(fileInput.files[0]);
                     contentData.push({ type: 'image', value: url });
-                    div.querySelector('.status-text').innerText = "✅ Ок";
+                    div.querySelector('.status-text').innerText = " Ок";
                 } catch(e) { 
                     alert("Помилка фото в блоці"); 
-                    div.querySelector('.status-text').innerText = "❌ Помилка";
+                    div.querySelector('.status-text').innerText = " Помилка";
                     return; 
                 }
             }
@@ -709,7 +780,7 @@ function renderQuestion() {
     document.getElementById('testQuestionText').innerText = q.text;
     document.getElementById('testQuestionText').style.display = 'block'; 
     
-    
+  
     const qCur = document.getElementById('qCurrent'); if(qCur) qCur.innerText = currentQuestionIndex + 1;
     const qTot = document.getElementById('qTotal'); if(qTot) qTot.innerText = activeTestQuestions.length;
 
@@ -762,7 +833,6 @@ function finishTest() {
     })
     .then(res => res.json())
     .then(data => {
-    
         if(data.status === 'error') {
             alert("Помилка сервера: " + data.message);
             showSection('main');
