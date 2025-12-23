@@ -11,7 +11,7 @@ let isTakingMandatory = false;
 let draftQuestions = [];
 let newsBlocks = [];
 
-console.log("Script Loaded Correctly v5.0 (Informant) ✅");
+console.log("Script Loaded Correctly v5.1 (Informant Fix) ✅");
 
 window.onload = function() {
     if (currentUser) {
@@ -167,7 +167,7 @@ function loginSuccess(u) {
     const teamStatusText = document.getElementById('teamStatusText');
     if(teamStatusText) teamStatusText.innerText = u.team;
     
-   
+    
     const adminBtn = document.getElementById('adminBtn');
     if (u.role === 'admin') {
         adminBtn.style.display = 'block';
@@ -175,7 +175,7 @@ function loginSuccess(u) {
         adminBtn.style.display = 'none';
     }
 
-   
+    
     const adminPanel = document.getElementById('adminInformantPanel');
     if (adminPanel) {
         adminPanel.style.display = (u.role === 'admin') ? 'block' : 'none';
@@ -246,7 +246,8 @@ function showSection(sectionName) {
 function loadInformantMessage() {
     const display = document.getElementById('informantDisplay');
     if (!display) return;
-    display.innerHTML = "<em>Оновлення інформації...</em>";
+    
+    if(display.innerText.includes("Завантаження")) display.innerHTML = "<em>Оновлення...</em>";
     
     fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getInformantMessage" }) })
     .then(r => r.json())
@@ -410,7 +411,7 @@ function addNewsTextBlock() {
     const div = document.createElement('div');
     div.style = "margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; position: relative; border-radius: 5px;";
     div.innerHTML = `
-        <span style="font-weight:bold; font-size:0.8em; color:grey;"> ТЕКСТ</span>
+        <span style="font-weight:bold; font-size:0.8em; color:grey;">📝 ТЕКСТ</span>
         <textarea class="news-text-input" style="width:100%; height:80px; margin-top:5px; border: 1px solid #ccc; border-radius: 4px; padding: 5px;" placeholder="Пишіть текст тут..."></textarea>
         <button onclick="this.parentElement.remove()" style="position:absolute; top:5px; right:5px; width:auto; padding:2px 8px; background:red; color:white; border:none; border-radius:3px; cursor:pointer;">X</button>
     `;
@@ -484,13 +485,13 @@ async function publishNews() {
         if (fileInput) {
             if (fileInput.files.length > 0) {
                 try {
-                    div.querySelector('.status-text').innerText = " Вантажу...";
+                    div.querySelector('.status-text').innerText = "⏳ Вантажу...";
                     const url = await uploadFile(fileInput.files[0]);
                     contentData.push({ type: 'image', value: url });
-                    div.querySelector('.status-text').innerText = " Ок";
+                    div.querySelector('.status-text').innerText = "✅ Ок";
                 } catch(e) { 
                     alert("Помилка фото в блоці"); 
-                    div.querySelector('.status-text').innerText = " Помилка";
+                    div.querySelector('.status-text').innerText = "❌ Помилка";
                     return; 
                 }
             }
@@ -780,7 +781,7 @@ function renderQuestion() {
     document.getElementById('testQuestionText').innerText = q.text;
     document.getElementById('testQuestionText').style.display = 'block'; 
     
-  
+    
     const qCur = document.getElementById('qCurrent'); if(qCur) qCur.innerText = currentQuestionIndex + 1;
     const qTot = document.getElementById('qTotal'); if(qTot) qTot.innerText = activeTestQuestions.length;
 
@@ -812,7 +813,7 @@ function submitAnswer(score) {
         if (currentQuestionIndex < activeTestQuestions.length) { 
             renderQuestion(); 
         } else { 
-            document.getElementById('testAnswers').innerHTML = '<h3 style="color: blue;">Зберігаємо результат...</h3>';
+            document.getElementById('testAnswers').innerHTML = '<h3 style="color: blue;"> Зберігаємо результат...</h3>';
             document.getElementById('testQuestionText').style.display = 'none';
             finishTest(); 
         }
