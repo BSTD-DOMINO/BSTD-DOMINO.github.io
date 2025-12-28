@@ -485,13 +485,13 @@ async function publishNews() {
         if (fileInput) {
             if (fileInput.files.length > 0) {
                 try {
-                    div.querySelector('.status-text').innerText = "⏳ Вантажу...";
+                    div.querySelector('.status-text').innerText = " Вантажу...";
                     const url = await uploadFile(fileInput.files[0]);
                     contentData.push({ type: 'image', value: url });
-                    div.querySelector('.status-text').innerText = "✅ Ок";
+                    div.querySelector('.status-text').innerText = " Ок";
                 } catch(e) { 
                     alert("Помилка фото в блоці"); 
-                    div.querySelector('.status-text').innerText = "❌ Помилка";
+                    div.querySelector('.status-text').innerText = " Помилка";
                     return; 
                 }
             }
