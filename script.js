@@ -40,6 +40,7 @@ window.onclick = function(event) {
 }
 
 
+
 function loadTicker() {
     fetch('ticker.txt')
         .then(response => {
@@ -49,16 +50,37 @@ function loadTicker() {
         .then(text => {
             const tickerEl = document.getElementById('ticker-text');
             if (tickerEl) {
+                
+                let separator = "***";
+                
+               
+                if (!text.includes(separator)) separator = ".";
+
+                let parts = text.split(separator);
+                
+                
+                parts = parts.map(p => p.trim()).filter(p => p.length > 0);
+
+                
+                if (parts.length > 1) {
+                    const randomIndex = Math.floor(Math.random() * parts.length);
+                    const newOrder = [...parts.slice(randomIndex), ...parts.slice(0, randomIndex)];
+                    
+                    
+                    text = newOrder.join(" " + separator + " ");
+                    text += " " + separator;
+                }
+
                 tickerEl.innerText = text;
                 
-                const duration = Math.max(15, text.length / 5); 
+                
+                const duration = Math.max(20, text.length / 5); 
                 tickerEl.style.animationDuration = duration + 's';
             }
         })
         .catch(err => {
             console.log("Ticker error:", err);
-            
-            document.getElementById('ticker-text').innerText = "ВСТД ІНФОРМУЄ: СИСТЕМА ПРАЦЮЄ У ШТАТНОМУ РЕЖИМІ";
+            document.getElementById('ticker-text').innerText = "*** ВСТД: СИСТЕМА ПРАЦЮЄ НОРМАЛЬНО ***";
         });
 }
 
