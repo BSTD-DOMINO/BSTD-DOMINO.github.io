@@ -8,6 +8,10 @@
 </head>
 <body>
 
+    <div id="ticker-container">
+        <div id="ticker-text">Завантаження новин...</div>
+    </div>
+
     <div class="profile-container">
         <div id="profileCorner" class="profile-header" onclick="toggleMenu()">
             <span id="cornerUsername" class="profile-name">Гість</span>
@@ -162,7 +166,7 @@
             <div id="answersContainer">
                 <input type="text" class="ans-text" placeholder="1"><input type="number" class="ans-score" placeholder="Бал">
             </div>
-            <button onclick="addAnswerField()" style="background: grey;"> + Ще</button>
+            <button onclick="addAnswerField()" style="background: grey;">+ Ще</button>
             <button onclick="addToDraft()" style="background: orange;">Додати</button>
         </div>
         <div id="draftContainer" style="margin-top: 20px;">
