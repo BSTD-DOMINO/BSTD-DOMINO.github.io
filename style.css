@@ -45,16 +45,16 @@ body {
 
 #ticker-text {
     font-family: 'Molot', sans-serif, Arial; 
-    font-size: 1.5em; 
-    font-weight: bold;
+    font-size: 1.3em; 
+    font-weight: normal; 
+    letter-spacing: 1px; 
     text-transform: uppercase;
-    white-space: nowrap; 
     
     
-    position: absolute; 
+    position: absolute;
     white-space: nowrap;
     will-change: transform;
-    animation: ticker-move 20s linear infinite; 
+    animation: ticker-move 20s linear infinite;
 }
 
 
