@@ -11,7 +11,7 @@ let isTakingMandatory = false;
 let draftQuestions = [];
 let newsBlocks = [];
 
-console.log("Script Loaded Correctly v5.1 (Informant Fix) ✅");
+console.log("Script Loaded Correctly v6.0 (Ticker) ✅");
 
 window.onload = function() {
     if (currentUser) {
@@ -19,6 +19,8 @@ window.onload = function() {
     } else {
         showSection('login');
     }
+    
+    loadTicker();
 };
 
 function toggleMenu() {
@@ -35,6 +37,29 @@ window.onclick = function(event) {
             }
         }
     }
+}
+
+
+function loadTicker() {
+    fetch('ticker.txt')
+        .then(response => {
+            if (!response.ok) throw new Error("Немає файлу ticker.txt");
+            return response.text();
+        })
+        .then(text => {
+            const tickerEl = document.getElementById('ticker-text');
+            if (tickerEl) {
+                tickerEl.innerText = text;
+                
+                const duration = Math.max(20, text.length / 5); 
+                tickerEl.style.animationDuration = duration + 's';
+            }
+        })
+        .catch(err => {
+            console.log("Ticker error:", err);
+            
+            document.getElementById('ticker-text').innerText = "+++ ВСТД: СИСТЕМА ПРАЦЮЄ НОРМАЛЬНО +++";
+        });
 }
 
 
@@ -153,7 +178,6 @@ function loginSuccess(u) {
     document.getElementById('profileScore').innerText = u.score;
     document.getElementById('profileTeam').innerText = u.team;
     
-    
     const rankCont = document.getElementById('rankContainer');
     if (u.team === "ВСТД") {
         if(rankCont) {
@@ -167,7 +191,6 @@ function loginSuccess(u) {
     const teamStatusText = document.getElementById('teamStatusText');
     if(teamStatusText) teamStatusText.innerText = u.team;
     
-    
     const adminBtn = document.getElementById('adminBtn');
     if (u.role === 'admin') {
         adminBtn.style.display = 'block';
@@ -175,7 +198,6 @@ function loginSuccess(u) {
         adminBtn.style.display = 'none';
     }
 
-    
     const adminPanel = document.getElementById('adminInformantPanel');
     if (adminPanel) {
         adminPanel.style.display = (u.role === 'admin') ? 'block' : 'none';
@@ -230,7 +252,6 @@ function showSection(sectionName) {
         loadNewsFeed();
     }
     
-    
     if (sectionName === 'main') {
         loadInformantMessage();
     }
@@ -270,7 +291,6 @@ function saveInformantMessage() {
     
     if (!currentUser || currentUser.role !== 'admin') { alert("Тільки для адміністраторів!"); return; }
 
-    
     const btn = document.querySelector('#adminInformantPanel button');
     const originalText = btn.innerText;
     btn.innerText = "Публікуємо...";
@@ -485,13 +505,13 @@ async function publishNews() {
         if (fileInput) {
             if (fileInput.files.length > 0) {
                 try {
-                    div.querySelector('.status-text').innerText = " Вантажу...";
+                    div.querySelector('.status-text').innerText = "⏳ Вантажу...";
                     const url = await uploadFile(fileInput.files[0]);
                     contentData.push({ type: 'image', value: url });
-                    div.querySelector('.status-text').innerText = " Ок";
+                    div.querySelector('.status-text').innerText = "✅ Ок";
                 } catch(e) { 
                     alert("Помилка фото в блоці"); 
-                    div.querySelector('.status-text').innerText = " Помилка";
+                    div.querySelector('.status-text').innerText = "❌ Помилка";
                     return; 
                 }
             }
@@ -781,7 +801,7 @@ function renderQuestion() {
     document.getElementById('testQuestionText').innerText = q.text;
     document.getElementById('testQuestionText').style.display = 'block'; 
     
-    
+   
     const qCur = document.getElementById('qCurrent'); if(qCur) qCur.innerText = currentQuestionIndex + 1;
     const qTot = document.getElementById('qTotal'); if(qTot) qTot.innerText = activeTestQuestions.length;
 
