@@ -1,12 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-
-@font-face {
-    font-family: 'Molot';
-    src: url('Molot.otf'); 
-}
-
-
 body {
     font-family: 'Inter', sans-serif;
     display: flex;
@@ -26,13 +17,12 @@ body {
     padding-top: 50px; 
 }
 
-
 #ticker-container {
     position: fixed; 
     top: 0;
     left: 0;
     width: 100%; 
-    height: 40px;
+    height: 40px; 
     background-color: #ffcc00 !important; 
     color: #000;
     overflow: hidden; 
@@ -44,17 +34,19 @@ body {
 }
 
 #ticker-text {
-    font-family: 'Molot', sans-serif, Arial; 
-    font-size: 1.3em; 
-    font-weight: normal; 
-    letter-spacing: 1px; 
+    
+    font-family: 'Russo One', sans-serif; 
+    font-size: 1.4em; 
+    font-weight: 400; 
+    -webkit-font-smoothing: antialiased;
     text-transform: uppercase;
+    white-space: nowrap;
     
     
-    position: absolute;
+    position: absolute; 
     white-space: nowrap;
     will-change: transform;
-    animation: ticker-move 20s linear infinite;
+    animation: ticker-move 20s linear infinite; 
 }
 
 
@@ -71,7 +63,7 @@ body {
 
 .profile-container {
     position: fixed;
-    top: 60px; 
+    top: 60px;
     right: 15px;
     z-index: 2000;
     display: block;
