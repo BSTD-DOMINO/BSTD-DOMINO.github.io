@@ -51,14 +51,14 @@ function loadTicker() {
             if (tickerEl) {
                 tickerEl.innerText = text;
                 
-                const duration = Math.max(20, text.length / 5); 
+                const duration = Math.max(15, text.length / 5); 
                 tickerEl.style.animationDuration = duration + 's';
             }
         })
         .catch(err => {
             console.log("Ticker error:", err);
             
-            document.getElementById('ticker-text').innerText = "+++ ВСТД: СИСТЕМА ПРАЦЮЄ НОРМАЛЬНО +++";
+            document.getElementById('ticker-text').innerText = "ВСТД ІНФОРМУЄ: СИСТЕМА ПРАЦЮЄ У ШТАТНОМУ РЕЖИМІ";
         });
 }
 
