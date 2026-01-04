@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
 @import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
 
 
@@ -18,8 +17,8 @@ body {
     background-position: center;
     background-attachment: fixed;
     
-   
-    padding-top: 116px; 
+    
+    padding-top: 148px; 
 }
 
 
@@ -29,10 +28,10 @@ body {
     left: 0;
     width: 100%;
     height: 40px;
-    background-color: #ffcc00 !important; 
+    background-color: #ffcc00 !important;
     color: #000;
     overflow: hidden;
-    z-index: 99999; 
+    z-index: 99999;
     border-bottom: 3px solid black;
     display: flex;
     align-items: center;
@@ -40,9 +39,9 @@ body {
 }
 
 #ticker-text {
-    font-family: 'Russo One', sans-serif; 
+    font-family: 'Russo One', sans-serif;
     font-size: 1.4em;
-    font-weight: 400; 
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     text-transform: uppercase;
     white-space: nowrap;
@@ -63,18 +62,18 @@ body::after {
     top: 40px; 
     left: 0;
     width: 100%;
-    height: 56px;
-    background-color: #4a0a0a; 
-    z-index: 1999; 
+    height: 88px; 
+    background-color: #4a0a0a;
+    z-index: 1999;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 
 .profile-container {
     position: fixed;
-    top: 44px; 
-    right: 15px;
-    z-index: 2000; 
+    top: 60px; 
+    right: 20px; 
+    z-index: 2000;
     display: block;
 }
 
@@ -83,12 +82,11 @@ body::after {
     align-items: center;
     gap: 10px;
     background: white;
-    padding: 5px 5px 5px 15px;
+    padding: 5px 5px 5px 15px; 
     border-radius: 50px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     cursor: pointer;
     transition: background 0.2s;
-    
 }
 
 .profile-header:hover {
