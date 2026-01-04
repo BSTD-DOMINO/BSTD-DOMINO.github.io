@@ -1,234 +1,280 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSTD-DOMINO System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Russo+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-    <div id="ticker-container">
-        <div id="ticker-text">Завантаження новин...</div>
-    </div>
 
-    <div class="profile-container">
-        <div id="profileCorner" class="profile-header" onclick="toggleMenu()">
-            <span id="cornerUsername" class="profile-name">Гість</span>
-            <div id="avatarCircle" class="avatar-circle">Г</div>
-        </div>
-        
-        <div id="dropdownMenu" class="dropdown-content">
-            <a onclick="showSection('main')">Головна</a>
-            <a onclick="showSection('profile')">Профіль</a>
-            <a onclick="showSection('news')">Новини</a>
-            <a onclick="openTeamPage()">Партія</a>
-            <a onclick="showSection('tests')">Тести</a> 
-            <a onclick="showSection('support')">Підтримка</a>
-            <a id="adminBtn" onclick="showSection('admin')" style="display: none; color: red; font-weight: bold;">АА</a>
-            <div class="divider"></div>
-            <a onclick="handleLogout()" class="logout-btn">Вихід</a>
-        </div>
-    </div>
+@font-face {
+    font-family: 'Molot';
+    src: url('Molot.otf'); 
+}
 
-    <div id="loginSection" class="container">
-        <h1>Вхід BSTD</h1>
-        <input type="text" id="loginUser" placeholder="Логін">
-        <input type="password" id="loginPass" placeholder="Пароль">
-        <button id="btnLogin" onclick="performLogin()">Увійти</button>
-        <div id="loginStatus" class="status-msg"></div>
-        <p style="font-size: 0.9em;">Немає акаунту? <span class="text-link" onclick="showSection('register')">Зареєструватися</span></p>
-    </div>
 
-    <div id="registerSection" class="container hidden">
-        <h1>Реєстрація</h1>
-        <input type="text" id="regUser" placeholder="Придумайте логін">
-        <input type="password" id="regPass" placeholder="Придумайте пароль">
-        <button id="btnReg" onclick="performRegister()">Створити акаунт</button>
-        <div id="regStatus" class="status-msg"></div>
-        <p style="font-size: 0.9em;">Вже є акаунт? <span class="text-link" onclick="showSection('login')">Увійти</span></p>
-    </div>
-
-    <div id="mainSection" class="container hidden" style="text-align: center;">
-        <h1 style="font-size: 2.5em; margin-bottom: 30px; color: #4f46e5;">Вітаємо! Ви успішно будете жити.</h1>
-        
-        <div class="informant-container" style="margin-top: 30px; max-width: 600px; margin-left: auto; margin-right: auto; padding: 10px;">
-            <h2 style="margin-top: 0; color: #555; font-size: 1.2em; text-transform: uppercase; letter-spacing: 1px;">Оголошення</h2>
-            <div id="informantDisplay" style="font-size: 1.3em; font-weight: bold; line-height: 1.6; color: #333; white-space: pre-wrap;">
-                Завантаження інформації...
-            </div>
-        </div>
-
-        <div id="adminInformantPanel" style="display: none; margin-top: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
-            <textarea id="informantInput" placeholder="Напишіть нове повідомлення для всіх..." style="width: 100%; height: 100px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px;"></textarea>
-            <button class="btn" onclick="saveInformantMessage()" style="width: 100%; background: #333;">Опублікувати (АА)</button>
-        </div>
-    </div>
-
-    <div id="profileSection" class="container hidden" style="max-width: 700px;">
-        <h2 style="font-size: 2em; margin-bottom: 20px;">Профіль <span id="profileNameHeader">User</span></h2>
-        <div class="profile-layout">
-            <div class="profile-left">
-                <img src="https://via.placeholder.com/150" id="profileAvatarBig" alt="Avatar">
-            </div>
-            <div class="profile-right">
-                <p><strong>Ім'я:</strong> <span id="profileName">User</span></p>
-                <p><strong>Бали:</strong> <span id="profileScore">0</span></p>
-                <p><strong>Партія:</strong> <span id="profileTeam">Не розподілено</span></p>
-                
-                <div id="rankContainer" style="display:none; margin: 10px 0; padding: 10px; background: #eef2ff; border-radius: 8px; border-left: 4px solid #4f46e5;">
-                    <span style="color: #4f46e5; font-size: 0.9em; font-weight: bold;">Ідейно-виробничний розряд:</span><br>
-                    <span id="profileRank" style="font-size: 1.3em; font-weight: bold; color: #333;">1 Учень</span>
-                </div>
-
-                <p><strong>Статус:</strong> <span style="color:green; font-weight:bold;">У системі</span></p>
-                <div style="background: #f0f0f0; padding: 10px; border-radius: 8px; margin-top: 10px;">
-                    <strong>Опис:</strong>
-                    <p id="profileDescription" style="font-style: italic; color: #555;">(Немає опису)</p>
-                </div>
-            </div>
-        </div>
-        <br>
-        <button onclick="showSection('main')" class="btn-back">На головну</button>
-    </div>
-
-    <div id="teamSection" class="container hidden">
-        <h2>Партія</h2>
-        <p>Ваша партія: <strong id="teamNameGeneric">Немає</strong></p>
-        <br><button onclick="showSection('main')">Назад</button>
-    </div>
-
-    <div id="bstdSection" class="container hidden" style="background: #fdfdfd; border: 2px solid #4f46e5; max-width: 800px;">
-        <h3 style="color: #666; font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Ми не політична партія</h3>
-        <h1 style="color: #4f46e5; margin-top: 0; font-size: 1.8em;">Ми - Професійно-Ідейний Союз Вологих Інженерів Дрючка</h1>
-        <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
-        
-        <div id="bstdStats" style="background: #eef; padding: 15px; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: #333; margin-bottom: 20px;">
-            Завантаження статистики...
-        </div>
-
-        <img src="https://via.placeholder.com/800x300?text=BSTD+Union" style="width: 100%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-        
-        <p style="font-style: italic;">"Праця, Ідея, Дрючок!"</p>
-        <br>
-        <button onclick="showSection('main')">На головну</button>
-    </div>
-
-    <div id="newsSection" class="container hidden" style="max-width: 600px;">
-        <h2>Новини</h2>
-        <div id="newsFeedContainer"><p>Завантаження новин...</p></div>
-        <br><button onclick="showSection('main')">Назад</button>
-    </div>
-
-    <div id="newsReaderSection" class="container hidden" style="max-width: 700px; text-align: left;">
-        <button onclick="showSection('news')" style="width: auto; padding: 5px 15px; margin-bottom: 10px;">До списку</button>
-        <h1 id="readerTitle" style="margin-bottom: 5px;">Заголовок</h1>
-        <h3 id="readerSubtitle" style="color: grey; margin-top: 0;"></h3>
-        <p id="readerDate" style="color: #888; font-size: 0.8em;"></p>
-        <hr>
-        <div id="readerContent" style="margin-top: 20px;"></div>
-    </div>
-
-    <div id="adminSection" class="container hidden" style="border: 2px solid red;">
-        <h2 style="color: red;">АА</h2>
-        <div class="admin-tabs">
-            <button onclick="document.getElementById('createTestForm').classList.toggle('hidden')">Конструктор Тестів</button>
-            <br><br>
-            <button onclick="loadUserManagement()" style="background: #333;">Всі Гості</button>
-            <br><br>
-            <button onclick="openNewsCreator()" style="background: #4f46e5;">Створити Новину</button>
-            <br><br>
-            <button onclick="openRankDistribution()" style="background: orange; color: black; font-weight: bold;">Розподіл</button>
-        </div>
-
-        <div id="rankSettings" class="hidden" style="margin-top: 20px; padding: 15px; border: 1px dashed orange; background: #fff8e1; text-align: left; border-radius: 8px;">
-            <h3 style="margin-top: 0;">Налаштування балів для розрядів ВСТД</h3>
-            <p style="font-size: 0.8em; color: #666;">Введіть поріг балів для отримання кожного рангу:</p>
-            
-            <div style="display: grid; grid-template-columns: 1fr 100px; gap: 10px; align-items: center;">
-                <label>1. Учень:</label> <input type="text" value="0" disabled style="background: #eee;">
-                <label>2. Робітник-Ідеолог:</label> <input type="number" id="r2_val">
-                <label>3. Майстер-Наставник:</label> <input type="number" id="r3_val">
-                <label>4. Інженер-Керівник:</label> <input type="number" id="r4_val">
-                <label>5. Начальник-Господар:</label> <input type="number" id="r5_val">
-                <label>6. Рада Сталі Дрючка:</label> <input type="number" id="r6_val">
-            </div>
-            <br>
-            <button onclick="saveRanks()" style="background: green;">Зберегти</button>
-        </div>
-
-        <div id="createTestForm" class="hidden" style="text-align: left; margin-top: 15px;">
-            <h3>Створити тест</h3>
-            <label>Тип:</label><select id="newQType"><option value="mandatory">Обовязковий</option><option value="optional">Звичайний</option></select>
-            <input type="text" id="newQText" placeholder="Текст...">
-            <input type="file" id="newQFile" accept="image/*">
-            <p id="uploadStatus" style="font-size: 0.8em; color: blue;"></p>
-            <div id="answersContainer">
-                <input type="text" class="ans-text" placeholder="1"><input type="number" class="ans-score" placeholder="Бал">
-            </div>
-            <button onclick="addAnswerField()" style="background: grey;">+ Ще</button>
-            <button onclick="addToDraft()" style="background: orange;">Додати</button>
-        </div>
-        <div id="draftContainer" style="margin-top: 20px;">
-            <h3>Список:</h3><div id="draftList"></div><button id="btnPublish" onclick="publishTest()" style="display:none; background: green;">ПУБЛІКАЦІЯ</button>
-        </div>
-        <br><button onclick="showSection('main')">⬅️ Назад</button>
-    </div>
-
-    <div id="createNewsSection" class="container hidden" style="max-width: 700px; text-align: left;">
-        <h2>Нова новина</h2>
-        <select id="newsTargetType" onchange="toggleNewsTargetInput()">
-            <option value="all">Всі</option>
-            <option value="team">Партія</option>
-            <option value="users">Люди</option>
-        </select>
-        <input type="text" id="newsTargetValue" style="display:none;" placeholder="Кому...">
-        <input type="text" id="newsTitle" placeholder="Заголовок">
-        <input type="text" id="newsSubtitle" placeholder="Підзаголовок">
-        
-        <label>Обкладинка:</label>
-        <input type="file" id="newsCoverFile" accept="image/*">
-        <p id="newsCoverStatus" style="font-size: 0.8em; color: blue;"></p>
-
-        <div id="newsContentBuilder" style="border: 1px dashed #ccc; padding: 10px; min-height: 100px; margin: 10px 0;">
-            <p id="emptyMsg" style="color:grey; text-align:center;">Додайте блоки...</p>
-        </div>
-
-        <button onclick="addNewsTextBlock()">+ Текст</button>
-        <button onclick="addNewsImageBlock()">+ Фото</button>
-        <br><br>
-        <button onclick="publishNews()" style="background: green;">Публікувати</button>
-        <br><br>
-        <button onclick="showSection('admin')" style="background: grey;">Скасувати</button>
-    </div>
-
-    <div id="userListSection" class="container hidden">
-        <h2>Керування</h2>
-        <div id="allUsersContainer"></div>
-        <br><button onclick="showSection('admin')">Назад</button>
-    </div>
-
-    <div id="testPlayerSection" class="container hidden" style="max-width: 500px;">
-        <img id="testImage" style="width: 100%; max-height: 250px; object-fit: contain; display: none;">
-        <h2 id="testQuestionText"></h2>
-        <div id="testAnswers" class="menu-grid"></div>
-        <p id="qInfo" style="color: grey; font-size: 0.8em;"></p>
-    </div>
-
-    <div id="supportSection" class="container hidden">
-        <h2>Підтримка</h2>
-        <textarea id="supportMessage" placeholder="Ваша ідея..." rows="5"></textarea>
-        <button onclick="sendFeedback()">Надіслати</button>
-        <br><br><button onclick="showSection('main')">Назад</button>
-    </div>
+body {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #1f2937;
+    text-align: center;
+    background-color: #f3f4f6;
+    background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     
-    <div id="testsSection" class="container hidden">
-        <h2>Тести</h2>
-        <div id="testsListContainer" class="menu-grid" style="grid-template-columns: 1fr;"></div>
-        <br><button onclick="showSection('main')">Назад</button>
-    </div>
+   
+    padding-top: 50px; 
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+
+#ticker-container {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%; 
+    height: 40px; 
+    background-color: #ffcc00 !important; 
+    color: #000;
+    overflow: hidden; 
+    z-index: 99999; 
+    border-bottom: 3px solid black; 
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#ticker-text {
+    font-family: 'Molot', sans-serif, Arial; 
+    font-size: 1.5em; 
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap; 
+    
+  
+    position: absolute; 
+    white-space: nowrap;
+    will-change: transform;
+    animation: ticker-move 20s linear infinite; 
+}
+
+
+@keyframes ticker-move {
+    0% {
+        transform: translateX(100vw); 
+    }
+    100% {
+        transform: translateX(-100%); 
+    }
+}
+
+
+
+.profile-container {
+    position: fixed;
+    top: 60px; 
+    right: 15px;
+    z-index: 2000;
+    display: block;
+}
+
+.profile-header {
+    display: none; 
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 5px 5px 5px 15px;
+    border-radius: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.profile-header:hover {
+    background-color: #f8f9fa;
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.avatar-circle {
+    width: 38px;
+    height: 38px;
+    background-color: #4f46e5;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 55px;
+    right: 0;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 2001;
+    text-align: left;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 5px 0;
+}
+
+.logout-btn {
+    color: #dc2626 !important;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    background-color: #fee2e2 !important;
+}
+
+.show { display: block; }
+
+
+.container {
+    padding: 2rem;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 420px;
+    margin: auto;
+    position: relative;
+    
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+h1 { color: #111827; margin-bottom: 1rem; }
+h2 { color: #374151; margin-top: 1rem; }
+
+
+#testQuestionText {
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+
+button, .btn {
+    background-color: #4f46e5;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 10px;
+    width: 100%;
+    font-size: 16px;
+    transition: background 0.2s;
+
+    white-space: normal;
+    word-wrap: break-word;
+    height: auto;
+    min-height: 50px;
+    line-height: 1.4;
+}
+
+button:hover { background-color: #4338ca; }
+.hidden { display: none; }
+.text-link { color: #4f46e5; cursor: pointer; text-decoration: underline; }
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.status-msg { margin-top: 10px; font-weight: bold; min-height: 20px; }
+
+.profile-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+#profileAvatarBig {
+    width: 150px;
+    height: 150px;
+    border-radius: 15px;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.profile-right p {
+    font-size: 1.1em;
+    margin: 10px 0;
+    color: #333;
+}
+
+.profile-right strong {
+    color: #555;
+}
+
+.btn-back {
+    background-color: #5b4ddb;
+    border-radius: 10px;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    width: auto;
+    min-width: 200px;
+}
+.btn-back:hover {
+    background-color: #483d8b;
+}
+
+@media (max-width: 600px) {
+    .profile-layout {
+        flex-direction: column;
+        text-align: center;
+    }
+    .profile-right {
+        text-align: center;
+    }
+}
