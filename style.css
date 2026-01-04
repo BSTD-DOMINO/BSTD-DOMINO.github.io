@@ -19,7 +19,7 @@ body {
     background-attachment: fixed;
     
    
-    padding-top: 120px; 
+    padding-top: 116px; 
 }
 
 
@@ -63,8 +63,8 @@ body::after {
     top: 40px; 
     left: 0;
     width: 100%;
-    height: 60px; 
-    background-color: #222; 
+    height: 56px;
+    background-color: #4a0a0a; 
     z-index: 1999; 
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
@@ -72,7 +72,7 @@ body::after {
 
 .profile-container {
     position: fixed;
-    top: 50px; 
+    top: 44px; 
     right: 15px;
     z-index: 2000; 
     display: block;
@@ -88,6 +88,7 @@ body::after {
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     cursor: pointer;
     transition: background 0.2s;
+    
 }
 
 .profile-header:hover {
