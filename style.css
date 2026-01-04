@@ -1,3 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+
 body {
     font-family: 'Inter', sans-serif;
     display: flex;
@@ -13,59 +18,63 @@ body {
     background-position: center;
     background-attachment: fixed;
     
-    
-    padding-top: 50px; 
+   
+    padding-top: 120px; 
 }
 
+
 #ticker-container {
-    position: fixed; 
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%; 
-    height: 40px; 
+    width: 100%;
+    height: 40px;
     background-color: #ffcc00 !important; 
     color: #000;
-    overflow: hidden; 
+    overflow: hidden;
     z-index: 99999; 
-    border-bottom: 3px solid black; 
+    border-bottom: 3px solid black;
     display: flex;
     align-items: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 #ticker-text {
-    
     font-family: 'Russo One', sans-serif; 
-    font-size: 1.4em; 
+    font-size: 1.4em;
     font-weight: 400; 
     -webkit-font-smoothing: antialiased;
     text-transform: uppercase;
     white-space: nowrap;
-    
-    
-    position: absolute; 
-    white-space: nowrap;
+    position: absolute;
     will-change: transform;
-    animation: ticker-move 20s linear infinite; 
+    animation: ticker-move 20s linear infinite;
 }
-
 
 @keyframes ticker-move {
-    0% {
-        transform: translateX(100vw); 
-    }
-    100% {
-        transform: translateX(-100%); 
-    }
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
 }
 
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 40px; 
+    left: 0;
+    width: 100%;
+    height: 60px; 
+    background-color: #222; 
+    z-index: 1999; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
 
 
 .profile-container {
     position: fixed;
-    top: 60px;
+    top: 50px; 
     right: 15px;
-    z-index: 2000;
+    z-index: 2000; 
     display: block;
 }
 
@@ -104,6 +113,7 @@ body {
     font-size: 18px;
     text-transform: uppercase;
 }
+
 
 .dropdown-content {
     display: none;
@@ -161,7 +171,6 @@ body {
     max-width: 420px;
     margin: auto;
     position: relative;
-    
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word;
@@ -169,7 +178,6 @@ body {
 
 h1 { color: #111827; margin-bottom: 1rem; }
 h2 { color: #374151; margin-top: 1rem; }
-
 
 #testQuestionText {
     width: 100%;
@@ -187,7 +195,6 @@ input, textarea {
     box-sizing: border-box;
 }
 
-
 button, .btn {
     background-color: #4f46e5;
     color: white;
@@ -200,7 +207,6 @@ button, .btn {
     width: 100%;
     font-size: 16px;
     transition: background 0.2s;
-
     white-space: normal;
     word-wrap: break-word;
     height: auto;
@@ -220,6 +226,7 @@ button:hover { background-color: #4338ca; }
 }
 
 .status-msg { margin-top: 10px; font-weight: bold; min-height: 20px; }
+
 
 .profile-layout {
     display: flex;
