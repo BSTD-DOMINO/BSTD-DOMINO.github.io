@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BSTD-DOMINO System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Russo+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -23,6 +23,18 @@
             <button class="nav-btn">6</button>
             <button class="nav-btn">7</button>
         </div>
+    </div>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Ваьаьаа СвдЗ<br><span style="color:#ffcc00;">ТРРОЛЛЛ ДТТТОЬА</span></h1>
+            <p class="hero-quote">"СВІТ БЛЛВЛВЛЬ Рввььв, ВЛЛВЛВЛВЛВЛ. ЛЛОЛВТОВООЧИМИРРІТ ІРРО."</p>
+            <div class="hero-buttons">
+                <button class="hero-btn yellow">СТАТИ ДТОЛЛЬЬЬЛЬЛА</button>
+                <button class="hero-btn transparent">ЧИТАТИ ООЬІЬЛЬІТ</button>
+            </div>
+        </div>
+        <div class="hero-overlay"></div>
     </div>
 
     <div class="profile-container">
@@ -44,7 +56,7 @@
         </div>
     </div>
 
-    <div id="loginSection" class="container">
+    <div id="loginSection" class="container hidden">
         <h1>Вхід BSTD</h1>
         <input type="text" id="loginUser" placeholder="Логін">
         <input type="password" id="loginPass" placeholder="Пароль">
@@ -62,7 +74,7 @@
         <p style="font-size: 0.9em;">Вже є акаунт? <span class="text-link" onclick="showSection('login')">Увійти</span></p>
     </div>
 
-    <div id="mainSection" class="container hidden" style="text-align: center;">
+    <div id="mainSection" class="container hidden" style="text-align: center; margin-top: 20px;">
         <h1 style="font-size: 2.5em; margin-bottom: 30px; color: #4f46e5;">Вітаємо! Ви успішно будете жити.</h1>
         
         <div class="informant-container" style="margin-top: 30px; max-width: 600px; margin-left: auto; margin-right: auto; padding: 10px;">
@@ -185,7 +197,7 @@
         <div id="draftContainer" style="margin-top: 20px;">
             <h3>Список:</h3><div id="draftList"></div><button id="btnPublish" onclick="publishTest()" style="display:none; background: green;">ПУБЛІКАЦІЯ</button>
         </div>
-        <br><button onclick="showSection('main')">⬅️ Назад</button>
+        <br><button onclick="showSection('main')"> Назад</button>
     </div>
 
     <div id="createNewsSection" class="container hidden" style="max-width: 700px; text-align: left;">
